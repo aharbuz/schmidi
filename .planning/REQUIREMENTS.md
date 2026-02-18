@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Audio Engine
 
-- [ ] **AUDIO-01**: User hears sound through polyphonic oscillator engine supporting multiple simultaneous voices
-- [ ] **AUDIO-02**: User can select oscillator waveform (sine, square, sawtooth, triangle)
-- [ ] **AUDIO-03**: User can shape amplitude with ADSR envelope (attack, decay, sustain, release controls)
+- [x] **AUDIO-01**: User hears sound through polyphonic oscillator engine supporting multiple simultaneous voices
+- [x] **AUDIO-02**: User can select oscillator waveform (sine, square, sawtooth, triangle)
+- [x] **AUDIO-03**: User can shape amplitude with ADSR envelope (attack, decay, sustain, release controls)
 - [x] **AUDIO-04**: Audio feedback is immediate (sub-50ms latency)
 
 ### Chord System
@@ -81,9 +81,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDIO-01 | Phase 1 | Pending |
-| AUDIO-02 | Phase 1 | Pending |
-| AUDIO-03 | Phase 1 | Pending |
+| AUDIO-01 | Phase 1 | Complete |
+| AUDIO-02 | Phase 1 | Complete |
+| AUDIO-03 | Phase 1 | Complete |
 | AUDIO-04 | Phase 1 | Complete |
 | CHORD-01 | Phase 2 | Pending |
 | CHORD-02 | Phase 2 | Pending |

@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 1 of 5 (Audio Foundation)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: Executing
-Last activity: 2026-02-18 — Completed 01-01 (Electron scaffold)
+Last activity: 2026-02-18 — Completed 01-02 (Audio engine core)
 
-Progress: [██░░░░░░░░] 4%
+Progress: [████░░░░░░] 8%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 15min
-- Total execution time: 15min
+- Total plans completed: 2
+- Average duration: 10min
+- Total execution time: 20min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Audio Foundation | 1 | 15min | 15min |
+| 1. Audio Foundation | 2 | 20min | 10min |
 
 **Recent Trend:**
-- Last 5 plans: 15min
-- Trend: baseline
+- Last 5 plans: 15min, 5min
+- Trend: improving
 
 *Updated after each plan completion*
 
@@ -48,6 +48,10 @@ Recent decisions affecting current work:
 - 01-01: Used @tailwindcss/postcss instead of @tailwindcss/vite -- Forge Vite plugin CJS bundling cannot load ESM-only modules
 - 01-01: Pinned @electron-forge/plugin-vite to exact 7.11.1 (experimental API stability)
 - 01-01: ESLint v10 flat config instead of legacy .eslintrc format
+- 01-02: Anti-click AudioParam protocol: cancelScheduledValues -> setValueAtTime (anchor) -> ramp/target for all gain changes
+- 01-02: Persistent oscillators always running, gain controls audibility -- avoids click/pop from start/stop
+- 01-02: Envelope decay/release use setTargetAtTime with timeConstant=period/3 for ~95% convergence
+- 01-02: Hard silence setValueAtTime(0) at release*1.67 to prevent lingering near-zero oscillation
 
 ### Pending Todos
 
@@ -62,5 +66,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 01-01-PLAN.md
-Resume file: .planning/phases/01-audio-foundation/01-01-SUMMARY.md
+Stopped at: Completed 01-02-PLAN.md
+Resume file: .planning/phases/01-audio-foundation/01-02-SUMMARY.md
