@@ -5,6 +5,8 @@ import { SplashScreen } from './components/SplashScreen';
 import { TitleBar } from './components/TitleBar';
 import { VoiceButton } from './components/VoiceButton';
 import { WaveformSelector } from './components/WaveformSelector';
+import { ADSRControls } from './components/ADSRControls';
+import { EnvelopeCurve } from './components/EnvelopeCurve';
 import { DEFAULT_VOICE_KEYS } from './audio/constants';
 
 /**
@@ -93,15 +95,8 @@ export default function App() {
         <section className="flex-1 flex flex-col gap-4 items-center justify-center">
           <WaveformSelector />
 
-          {/* ADSR controls placeholder -- Plan 04 Task 2 */}
-          <div className="w-full max-w-md h-32 rounded-lg border border-gray-800/50 bg-[#0e0e16] flex items-center justify-center text-gray-600 text-sm">
-            ADSR Controls
-          </div>
-
-          {/* Envelope curve placeholder -- Plan 04 Task 2 */}
-          <div className="w-full max-w-md h-28 rounded-lg border border-gray-800/50 bg-[#0e0e16] flex items-center justify-center text-gray-600 text-sm">
-            Envelope Curve
-          </div>
+          <ADSRControls />
+          <EnvelopeCurve />
         </section>
 
         {/* Right column: placeholder for volume + oscilloscope (Plan 05) */}
