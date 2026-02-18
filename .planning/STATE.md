@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 1 of 5 (Audio Foundation)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Executing
-Last activity: 2026-02-18 — Completed 01-03 (App shell + state management)
+Last activity: 2026-02-18 — Completed 01-04 (Core instrument controls)
 
-Progress: [██████░░░░] 12%
+Progress: [████████░░] 16%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 7min
-- Total execution time: 22min
+- Total plans completed: 4
+- Average duration: 6min
+- Total execution time: 25min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Audio Foundation | 3 | 22min | 7min |
+| 1. Audio Foundation | 4 | 25min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 15min, 5min, 2min
+- Last 5 plans: 15min, 5min, 2min, 3min
 - Trend: improving
 
 *Updated after each plan completion*
@@ -55,6 +55,10 @@ Recent decisions affecting current work:
 - 01-03: VoiceManager stored as module-level variable (not reactive state) to avoid re-render overhead
 - 01-03: Splash screen gates AudioContext resume on user click per Web Audio autoplay policy
 - 01-03: Animation loop uses rAF polling rather than event-driven updates for consistent 60fps visual feedback
+- 01-04: Global keydown/keyup listeners with heldKeysRef Set for repeat prevention and polyphonic key tracking
+- 01-04: CSS animation classes per envelope stage driven by voiceState.stage from animation loop
+- 01-04: Inline SVG waveform icons for crisp rendering at small sizes
+- 01-04: Vertical range inputs via writingMode vertical-lr for native slider orientation
 
 ### Pending Todos
 
@@ -69,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 01-03-PLAN.md
-Resume file: .planning/phases/01-audio-foundation/01-03-SUMMARY.md
+Stopped at: Completed 01-04-PLAN.md
+Resume file: .planning/phases/01-audio-foundation/01-04-SUMMARY.md
