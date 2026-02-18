@@ -33,3 +33,10 @@ do-work/
 # Cache
 .eslintcache
 *.tsbuildinfo
+
+# Storybook
+storybook-static/
+
+# Playwright
+test-results/
+playwright-report/
