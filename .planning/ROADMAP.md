@@ -13,7 +13,7 @@ Schmidi is built from the audio foundation up: correct oscillator architecture a
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Audio Foundation** - Electron app scaffolded with persistent oscillators and correct AudioParam patterns
-- [ ] **Phase 2: Chord Engine + Synth Mode** - Playable chord instrument with key/mode selection and ADSR
+- [x] **Phase 2: Chord Engine + Synth Mode** - Playable chord instrument with key/mode selection and ADSR
 - [ ] **Phase 3: Convergence Engine + Slide Mode** - Core Schmidi mechanic: N tracks gliding to chord targets simultaneously
 - [ ] **Phase 4: Visualization** - Radial and waveform views as primary instrument UI
 - [ ] **Phase 5: Instrument Personality** - Slide character, convergence behavior, pre-press modes, scale snapping
@@ -50,8 +50,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
 - [x] 02-01-PLAN.md -- Music theory types + diatonic chord engine with TDD (tonal, chordEngine, noteFrequency)
 - [x] 02-02-PLAN.md -- ChordVoiceManager voice pool with allocation, release, and voice stealing
-- [ ] 02-03-PLAN.md -- Zustand store extension + chord arc UI + key/mode selectors
-- [ ] 02-04-PLAN.md -- App layout integration, keyboard handler, per-track volume, verification
+- [x] 02-03-PLAN.md -- Zustand store extension + chord arc UI + key/mode selectors
+- [x] 02-04-PLAN.md -- App layout integration, keyboard handler, per-track volume, verification
 
 ### Phase 3: Convergence Engine + Slide Mode
 **Goal**: The core Schmidi mechanic: N persistent pitch tracks glide continuously through pitch space and converge simultaneously on chord target notes when a chord is pressed, with volume swelling on approach and fading on departure
@@ -95,7 +95,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Audio Foundation | 1/5 | In Progress | - |
-| 2. Chord Engine + Synth Mode | 2/4 | In Progress | - |
+| 2. Chord Engine + Synth Mode | 4/4 | Complete | 2026-02-18 |
 | 3. Convergence Engine + Slide Mode | 0/TBD | Not started | - |
 | 4. Visualization | 0/TBD | Not started | - |
 | 5. Instrument Personality | 0/TBD | Not started | - |

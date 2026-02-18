@@ -41,8 +41,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Controls
 
-- [ ] **CTRL-01**: Per-track volume sliders for each sliding track and the anchor track
-- [ ] **CTRL-02**: Master volume control
+- [x] **CTRL-01**: Per-track volume sliders for each sliding track and the anchor track
+- [x] **CTRL-02**: Master volume control
 
 ## v2 Requirements
 
@@ -88,8 +88,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHORD-01 | Phase 2 | Complete |
 | CHORD-02 | Phase 2 | Complete |
 | CHORD-03 | Phase 2 | Complete |
-| CTRL-01 | Phase 2 | Pending |
-| CTRL-02 | Phase 2 | Pending |
+| CTRL-01 | Phase 2 | Complete |
+| CTRL-02 | Phase 2 | Complete |
 | SLIDE-01 | Phase 3 | Pending |
 | SLIDE-02 | Phase 3 | Pending |
 | SLIDE-03 | Phase 3 | Pending |

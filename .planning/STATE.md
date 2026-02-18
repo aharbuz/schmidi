@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 2 — Chord Engine + Synth Mode
+**Current focus:** Phase 2 complete -- ready for Phase 3 (Convergence Engine + Slide Mode)
 
 ## Current Position
 
-Phase: 2 of 5 (Chord Engine + Synth Mode)
-Plan: 3 of 4 in current phase
-Status: Executing
-Last activity: 2026-02-18 — Completed 02-03 (Store + Chord UI Components)
+Phase: 2 of 5 (Chord Engine + Synth Mode) -- COMPLETE
+Plan: 4 of 4 in current phase (all plans complete)
+Status: Phase Complete
+Last activity: 2026-02-18 — Completed 02-04 (App Layout Integration + Playable Chord Instrument)
 
-Progress: [██████████████░] 28%
+Progress: [████████████████████░░░░░░░░░░] 36%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 6min
-- Total execution time: 42min
+- Total execution time: 46min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Audio Foundation | 4 | 25min | 6min |
-| 2. Chord Engine + Synth Mode | 3 | 17min | 6min |
+| 2. Chord Engine + Synth Mode | 4 | 21min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 2min, 3min, 7min, 3min
+- Last 5 plans: 2min, 3min, 7min, 3min, 4min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -41,6 +41,7 @@ Progress: [██████████████░] 28%
 | Phase 02 P01 | 7min | 3 tasks | 6 files |
 | Phase 02 P02 | 7min | 2 tasks | 3 files |
 | Phase 02 P03 | 3min | 3 tasks | 5 files |
+| Phase 02 P04 | 4min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,10 @@ Recent decisions affecting current work:
 - 02-03: Math.sin/cos in JS for arc/circle positioning rather than CSS trig functions (cross-browser compat)
 - 02-03: Harmonic function colors: tonic=indigo, subdominant=amber, dominant=rose
 - 02-03: Module-level ChordVoiceManager ref pattern (same as Phase 1 VoiceManager)
+- 02-04: useChordKeyboard hook with useRef<Set> for held-key tracking prevents key repeat and enables polychordal triggering
+- 02-04: Per-track volume sliders store values in Zustand but defer per-group gain routing to Phase 3
+- 02-04: ChordVoiceManager connects to same masterGain as Phase 1 VoiceManager (shared master bus)
+- 02-04: Phase 1 VoiceButton grid replaced by ChordArc -- old component file preserved for debug/legacy mode
 - [Phase 02]: Used tonal library for chord generation rather than hand-rolling interval tables
 
 ### Pending Todos
@@ -91,5 +96,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-03-PLAN.md (Store + Chord UI Components)
-Resume file: .planning/phases/02-chord-engine-synth-mode/02-03-SUMMARY.md
+Stopped at: Completed 02-04-PLAN.md (App Layout Integration + Playable Chord Instrument) -- Phase 2 complete
+Resume file: .planning/phases/02-chord-engine-synth-mode/02-04-SUMMARY.md
