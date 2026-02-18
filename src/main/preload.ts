@@ -1,3 +1,7 @@
-// Preload script - configured in Task 2
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge, ipcRenderer } from 'electron';
+
+// Expose a minimal API to the renderer via contextBridge
+contextBridge.exposeInMainWorld('schmidiAPI', {
+  platform: process.platform,
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke('get-app-version'),
+});
