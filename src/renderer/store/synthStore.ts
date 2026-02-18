@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import type { ADSRValues, VoiceState, WaveformType } from '../../shared/types';
 import type { VoiceManager } from '../audio/VoiceManager';
+import type { ChordVoiceManager } from '../audio/ChordVoiceManager';
+import type { ChordData, MusicalKey, MusicalMode } from '../music/musicTypes';
+import { generateDiatonicChords } from '../music/chordEngine';
 import { ENVELOPE_PRESETS } from '../audio/envelopePresets';
 import { setMasterVolume } from '../audio/masterBus';
 
@@ -13,7 +16,7 @@ interface AudioStatus {
 
 /** Synth store state shape */
 interface SynthState {
-  // UI state
+  // UI state (Phase 1)
   audioReady: boolean;
   currentWaveform: WaveformType;
   currentPreset: string;
@@ -22,7 +25,14 @@ interface SynthState {
   voiceStates: VoiceState[];
   audioStatus: AudioStatus;
 
-  // Actions
+  // Chord engine state (Phase 2)
+  selectedKey: MusicalKey;
+  selectedMode: MusicalMode;
+  chordGrid: ChordData[];
+  activeChordDegrees: Set<number>;
+  perTrackExpanded: boolean;
+
+  // Actions (Phase 1)
   setAudioReady: (ready: boolean) => void;
   setWaveform: (type: WaveformType) => void;
   setPreset: (name: string) => void;
@@ -32,6 +42,13 @@ interface SynthState {
   releaseVoice: (index: number) => void;
   updateVoiceStates: (states: VoiceState[]) => void;
   updateAudioStatus: (status: AudioStatus) => void;
+
+  // Actions (Phase 2 - Chord engine)
+  setKey: (key: MusicalKey) => void;
+  setMode: (mode: MusicalMode) => void;
+  triggerChordByDegree: (degree: number) => void;
+  releaseChordByDegree: (degree: number) => void;
+  togglePerTrackPanel: () => void;
 }
 
 // Module-level VoiceManager reference -- NOT reactive state
@@ -47,6 +64,19 @@ export function getVoiceManager(): VoiceManager | null {
   return voiceManagerRef;
 }
 
+// Module-level ChordVoiceManager reference -- NOT reactive state (same pattern)
+let chordVoiceManagerRef: ChordVoiceManager | null = null;
+
+/** Set the ChordVoiceManager instance (called once during chord audio init) */
+export function setChordVoiceManager(cvm: ChordVoiceManager): void {
+  chordVoiceManagerRef = cvm;
+}
+
+/** Get the ChordVoiceManager instance */
+export function getChordVoiceManager(): ChordVoiceManager | null {
+  return chordVoiceManagerRef;
+}
+
 /** Default ADSR from the default preset */
 const defaultPreset = 'Pad (Drift)';
 const defaultADSR = ENVELOPE_PRESETS[defaultPreset];
@@ -59,8 +89,11 @@ const defaultVoiceState: VoiceState = {
   detune: 0,
 };
 
-export const useSynthStore = create<SynthState>()((set) => ({
-  // Initial state
+/** Default chord grid for initial key/mode */
+const defaultChordGrid = generateDiatonicChords('C', 'major');
+
+export const useSynthStore = create<SynthState>()((set, get) => ({
+  // Initial state (Phase 1)
   audioReady: false,
   currentWaveform: 'sine',
   currentPreset: defaultPreset,
@@ -69,11 +102,19 @@ export const useSynthStore = create<SynthState>()((set) => ({
   voiceStates: Array.from({ length: 8 }, () => ({ ...defaultVoiceState })),
   audioStatus: { state: 'suspended', sampleRate: 0, baseLatency: 0 },
 
-  // Actions
+  // Initial state (Phase 2 - Chord engine)
+  selectedKey: 'C',
+  selectedMode: 'major',
+  chordGrid: defaultChordGrid,
+  activeChordDegrees: new Set<number>(),
+  perTrackExpanded: false,
+
+  // Actions (Phase 1)
   setAudioReady: (ready) => set({ audioReady: ready }),
 
   setWaveform: (type) => {
     voiceManagerRef?.setWaveform(type);
+    chordVoiceManagerRef?.setWaveform(type);
     set({ currentWaveform: type });
   },
 
@@ -86,6 +127,7 @@ export const useSynthStore = create<SynthState>()((set) => ({
 
   setADSR: (adsr) => {
     voiceManagerRef?.setADSR(adsr);
+    chordVoiceManagerRef?.setADSR(adsr);
     set({ adsr: { ...adsr } });
   },
 
@@ -108,4 +150,40 @@ export const useSynthStore = create<SynthState>()((set) => ({
   updateVoiceStates: (states) => set({ voiceStates: states }),
 
   updateAudioStatus: (status) => set({ audioStatus: status }),
+
+  // Actions (Phase 2 - Chord engine)
+  setKey: (key) => {
+    const { selectedMode } = get();
+    const newChordGrid = generateDiatonicChords(key, selectedMode);
+    chordVoiceManagerRef?.retuneActiveChords(newChordGrid);
+    set({ selectedKey: key, chordGrid: newChordGrid });
+  },
+
+  setMode: (mode) => {
+    const { selectedKey } = get();
+    const newChordGrid = generateDiatonicChords(selectedKey, mode);
+    chordVoiceManagerRef?.retuneActiveChords(newChordGrid);
+    set({ selectedMode: mode, chordGrid: newChordGrid });
+  },
+
+  triggerChordByDegree: (degree) => {
+    const { chordGrid, currentWaveform, adsr, activeChordDegrees } = get();
+    const chordData = chordGrid[degree - 1];
+    if (!chordData) return;
+    chordVoiceManagerRef?.triggerChord(degree, chordData.frequencies, currentWaveform, adsr);
+    set({ activeChordDegrees: new Set([...activeChordDegrees, degree]) });
+  },
+
+  releaseChordByDegree: (degree) => {
+    const { activeChordDegrees } = get();
+    chordVoiceManagerRef?.releaseByDegree(degree);
+    const newDegrees = new Set(activeChordDegrees);
+    newDegrees.delete(degree);
+    set({ activeChordDegrees: newDegrees });
+  },
+
+  togglePerTrackPanel: () => {
+    const { perTrackExpanded } = get();
+    set({ perTrackExpanded: !perTrackExpanded });
+  },
 }));
