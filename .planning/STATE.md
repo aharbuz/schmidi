@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 2 complete -- ready for Phase 3 (Convergence Engine + Slide Mode)
+**Current focus:** Phase 2 complete (incl. gap closure) -- ready for Phase 3 (Convergence Engine + Slide Mode)
 
 ## Current Position
 
 Phase: 2 of 5 (Chord Engine + Synth Mode) -- COMPLETE
-Plan: 4 of 4 in current phase (all plans complete)
+Plan: 5 of 5 in current phase (all plans complete, incl. gap closure 02-05)
 Status: Phase Complete
-Last activity: 2026-02-18 — Completed 02-04 (App Layout Integration + Playable Chord Instrument)
+Last activity: 2026-02-18 — Completed 02-05 (Per-Track Volume Wiring, gap closure for CTRL-01)
 
-Progress: [████████████████████░░░░░░░░░░] 36%
+Progress: [█████████████████████░░░░░░░░░] 38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6min
-- Total execution time: 46min
+- Total plans completed: 9
+- Average duration: 5min
+- Total execution time: 49min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Audio Foundation | 4 | 25min | 6min |
-| 2. Chord Engine + Synth Mode | 4 | 21min | 5min |
+| 2. Chord Engine + Synth Mode | 5 | 24min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 2min, 3min, 7min, 3min, 4min
+- Last 5 plans: 3min, 7min, 3min, 4min, 3min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -42,6 +42,7 @@ Progress: [████████████████████░░░
 | Phase 02 P02 | 7min | 2 tasks | 3 files |
 | Phase 02 P03 | 3min | 3 tasks | 5 files |
 | Phase 02 P04 | 4min | 3 tasks | 4 files |
+| Phase 02 P05 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -78,9 +79,12 @@ Recent decisions affecting current work:
 - 02-03: Harmonic function colors: tonic=indigo, subdominant=amber, dominant=rose
 - 02-03: Module-level ChordVoiceManager ref pattern (same as Phase 1 VoiceManager)
 - 02-04: useChordKeyboard hook with useRef<Set> for held-key tracking prevents key repeat and enables polychordal triggering
-- 02-04: Per-track volume sliders store values in Zustand but defer per-group gain routing to Phase 3
+- 02-04: Per-track volume sliders store values in Zustand but defer per-group gain routing to gap closure plan 02-05
 - 02-04: ChordVoiceManager connects to same masterGain as Phase 1 VoiceManager (shared master bus)
 - 02-04: Phase 1 VoiceButton grid replaced by ChordArc -- old component file preserved for debug/legacy mode
+- 02-05: Voice.reconnect() minimal API addition over inserting gain nodes at Voice construction time -- keeps Voice simple
+- 02-05: Per-degree GainNodes created eagerly in constructor (not lazily) to guarantee audio chain exists before first triggerChord
+- 02-05: Anti-click 20ms linearRamp on setDegreeVolume matching masterBus scheduling pattern
 - [Phase 02]: Used tonal library for chord generation rather than hand-rolling interval tables
 
 ### Pending Todos
@@ -96,5 +100,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-04-PLAN.md (App Layout Integration + Playable Chord Instrument) -- Phase 2 complete
-Resume file: .planning/phases/02-chord-engine-synth-mode/02-04-SUMMARY.md
+Stopped at: Completed 02-05-PLAN.md (Per-Track Volume Wiring, gap closure for CTRL-01) -- Phase 2 fully complete
+Resume file: .planning/phases/02-chord-engine-synth-mode/02-05-SUMMARY.md

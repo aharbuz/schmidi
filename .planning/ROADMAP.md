@@ -52,7 +52,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 02-02-PLAN.md -- ChordVoiceManager voice pool with allocation, release, and voice stealing
 - [x] 02-03-PLAN.md -- Zustand store extension + chord arc UI + key/mode selectors
 - [x] 02-04-PLAN.md -- App layout integration, keyboard handler, per-track volume, verification
-- [ ] 02-05-PLAN.md -- Gap closure: wire per-track volume sliders to per-degree audio routing (CTRL-01)
+- [x] 02-05-PLAN.md -- Gap closure: wire per-track volume sliders to per-degree audio routing (CTRL-01)
 
 ### Phase 3: Convergence Engine + Slide Mode
 **Goal**: The core Schmidi mechanic: N persistent pitch tracks glide continuously through pitch space and converge simultaneously on chord target notes when a chord is pressed, with volume swelling on approach and fading on departure
@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Audio Foundation | 1/5 | In Progress | - |
-| 2. Chord Engine + Synth Mode | 4/5 | Gap Closure | - |
+| 2. Chord Engine + Synth Mode | 5/5 | Complete | 2026-02-18 |
 | 3. Convergence Engine + Slide Mode | 0/TBD | Not started | - |
 | 4. Visualization | 0/TBD | Not started | - |
 | 5. Instrument Personality | 0/TBD | Not started | - |
