@@ -38,6 +38,7 @@ export class ChordVoiceManager {
   private voices: Voice[];
   private allocations: Map<string, ChordAllocation>;
   private ctx: AudioContext;
+  private nextChordSeq = 0;
 
   constructor(ctx: AudioContext, masterGain: GainNode, poolSize = CHORD_VOICE_POOL_SIZE) {
     this.ctx = ctx;
@@ -63,7 +64,7 @@ export class ChordVoiceManager {
     waveform: WaveformType,
     adsr: ADSRValues
   ): string {
-    const chordId = `${degree}-${Date.now()}`;
+    const chordId = `${degree}-${Date.now()}-${this.nextChordSeq++}`;
     const voiceIndices = this.allocateVoices(VOICES_PER_CHORD);
 
     for (let i = 0; i < voiceIndices.length; i++) {

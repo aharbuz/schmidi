@@ -1,8 +1,8 @@
 /**
  * Octave-aware triad note name generation.
  *
- * Stub created by 02-02 execution to unblock typecheck.
- * Plan 02-01 will provide the full implementation with octave boundary logic.
+ * Assigns correct octave numbers to triad notes built from scale degrees,
+ * handling octave boundary crossings when notes wrap past the root.
  */
 
 /** Standard note letter order for octave crossing detection */
