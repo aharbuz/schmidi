@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VoiceManager } from '../renderer/audio/VoiceManager';
-import type { ADSRValues, WaveformType } from '../shared/types';
+import type { ADSRValues } from '../shared/types';
 
 // Mock AudioContext and related nodes
 function createMockAudioContext() {
@@ -40,12 +40,6 @@ function createMockAudioContext() {
     setValueAtTime: vi.fn(),
     linearRampToValueAtTime: vi.fn(),
     setTargetAtTime: vi.fn(),
-  };
-
-  const mockVoiceGainNode = {
-    gain: mockVoiceGainParam,
-    connect: vi.fn(),
-    disconnect: vi.fn(),
   };
 
   const mockOscillator = {
