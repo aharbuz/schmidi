@@ -37,6 +37,27 @@ Executed all 5 plans of Phase 1 (Audio Foundation) via `/gsd:execute-phase 1`:
 - Vite's built-in esbuild JSX transform works fine without the React plugin
 
 ### What needs fixing
-- One or more component imports in App.tsx silently crash the module chain
-- Need to binary-search which import: comment out half the imports, test, narrow down
-- Most likely culprits: components that access `window.schmidiAPI` (preload), or audio engine modules with browser-only APIs
+- ~~One or more component imports in App.tsx silently crash the module chain~~ **RESOLVED** — see below
+
+## 2026-02-18: White Screen Root Cause Found & Fixed
+
+### Actual root cause
+The white screen was **NOT** a silent module failure. It was a **race condition** in Electron Forge's Vite plugin:
+- Forge reports "Vite dev server launched" before the TCP socket is actually accepting connections
+- Electron's `BrowserWindow.loadURL()` fires immediately and gets `ERR_CONNECTION_REFUSED`
+- The page loads empty (no HTML served), resulting in a white screen
+- No error is visible because `did-fail-load` doesn't show in the app UI
+
+### Evidence
+- Full App.tsx import chain works perfectly in standalone Vite (`npx vite`) — complete splash screen + instrument UI renders
+- Debug log from main process showed: `DID-FAIL-LOAD: -102 ERR_CONNECTION_REFUSED http://localhost:5173/`
+- `ROOT_HTML: ROOT_EMPTY` confirmed no content was served
+
+### Fix applied
+Added `loadURLWithRetry()` in `src/main/main.ts`:
+- Catches `ERR_CONNECTION_REFUSED` errors
+- Retries with exponential backoff (200ms base, 1.5x, capped at 2s, max 10 retries)
+- Only retries on connection refused — other errors propagate immediately
+
+### Status
+- Fix committed, awaiting user verification that the Electron app now shows the splash screen consistently

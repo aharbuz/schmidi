@@ -13,6 +13,28 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 let mainWindow: BrowserWindow | null = null;
 
+/**
+ * Wait for a URL to accept connections before loading it.
+ * Electron Forge's Vite plugin can report "ready" before the dev server
+ * is actually accepting TCP connections — retry with backoff to handle the race.
+ */
+async function loadURLWithRetry(win: BrowserWindow, url: string, maxRetries = 10): Promise<void> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      await win.loadURL(url);
+      return;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('ERR_CONNECTION_REFUSED') && attempt < maxRetries - 1) {
+        const delay = Math.min(200 * Math.pow(1.5, attempt), 2000);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 const createWindow = () => {
   // Persist window position and size between launches
   const mainWindowState = windowStateKeeper({
@@ -42,7 +64,9 @@ const createWindow = () => {
 
   // Load the renderer
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    loadURLWithRetry(mainWindow, MAIN_WINDOW_VITE_DEV_SERVER_URL).catch((err) => {
+      console.error('Failed to load dev server after retries:', err);
+    });
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
