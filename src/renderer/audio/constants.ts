@@ -21,6 +21,12 @@ export const DEFAULT_VOICE_KEYS = ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'];
 /** Master gain level (0-1) */
 export const MASTER_GAIN = 0.15;
 
+/** Maximum simultaneous voices for chord mode (8 triads x 3 voices) */
+export const CHORD_VOICE_POOL_SIZE = 24;
+
+/** Number of voices per chord (triad = 3 notes) */
+export const VOICES_PER_CHORD = 3;
+
 /** DynamicsCompressor settings for the master bus */
 export const COMPRESSOR_SETTINGS = {
   threshold: -24,
