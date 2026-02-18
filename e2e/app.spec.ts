@@ -21,7 +21,9 @@ test.beforeAll(async () => {
     timeout: 20000,
   });
   page = await app.firstWindow();
-  await page.waitForLoadState('domcontentloaded');
+  // The loadURLWithRetry in main.ts may need several attempts to connect
+  // to the Vite dev server. Wait for full load before proceeding.
+  await page.waitForLoadState('load');
 });
 
 test.afterAll(async () => {
