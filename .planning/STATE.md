@@ -5,35 +5,37 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 1 — Audio Foundation
+**Current focus:** Phase 2 — Chord Engine + Synth Mode
 
 ## Current Position
 
-Phase: 1 of 5 (Audio Foundation)
-Plan: 4 of 5 in current phase
+Phase: 2 of 5 (Chord Engine + Synth Mode)
+Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-18 — Completed 01-04 (Core instrument controls)
+Last activity: 2026-02-18 — Completed 02-02 (ChordVoiceManager)
 
-Progress: [████████░░] 16%
+Progress: [█████████░] 24%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 6min
-- Total execution time: 25min
+- Total execution time: 32min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Audio Foundation | 4 | 25min | 6min |
+| 2. Chord Engine + Synth Mode | 1 | 7min | 7min |
 
 **Recent Trend:**
-- Last 5 plans: 15min, 5min, 2min, 3min
-- Trend: improving
+- Last 5 plans: 15min, 5min, 2min, 3min, 7min
+- Trend: stable
 
 *Updated after each plan completion*
+| Phase 02 P01 | 7min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -59,6 +61,13 @@ Recent decisions affecting current work:
 - 01-04: CSS animation classes per envelope stage driven by voiceState.stage from animation loop
 - 01-04: Inline SVG waveform icons for crisp rendering at small sizes
 - 01-04: Vertical range inputs via writingMode vertical-lr for native slider orientation
+- 02-01: Used tonal library Mode.triads()/Mode.notes() for chord generation — eliminates hand-rolled interval tables
+- 02-01: Mode aliases map user-facing names (major/minor) to tonal internal names (ionian/aeolian)
+- 02-01: Octave crossing detection via note letter index comparison (C=0 through B=6)
+- 02-02: ChordRetuneData local interface decouples ChordVoiceManager from plan 02-01 execution order
+- 02-02: Sequence counter in chordId generation prevents same-millisecond collisions
+- 02-02: Voice allocation checks both isActive and isVoiceAllocated to prevent reuse during release phase
+- [Phase 02]: Used tonal library for chord generation rather than hand-rolling interval tables
 
 ### Pending Todos
 
@@ -73,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-chord-engine-synth-mode/02-CONTEXT.md
+Stopped at: Completed 02-01-PLAN.md (chord engine data foundation)
+Resume file: .planning/phases/02-chord-engine-synth-mode/02-01-SUMMARY.md

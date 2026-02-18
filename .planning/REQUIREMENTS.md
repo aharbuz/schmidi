@@ -16,8 +16,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Chord System
 
-- [ ] **CHORD-01**: User can select a key (C through B) and mode (major, minor, dorian, phrygian, lydian, mixolydian, aeolian, locrian)
-- [ ] **CHORD-02**: App generates diatonic chord grid from selected key + mode
+- [x] **CHORD-01**: User can select a key (C through B) and mode (major, minor, dorian, phrygian, lydian, mixolydian, aeolian, locrian)
+- [x] **CHORD-02**: App generates diatonic chord grid from selected key + mode
 - [ ] **CHORD-03**: User can click/hold chord buttons to play chords directly (synth mode)
 
 ### Slide Mode
@@ -85,8 +85,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIO-02 | Phase 1 | Complete |
 | AUDIO-03 | Phase 1 | Complete |
 | AUDIO-04 | Phase 1 | Complete |
-| CHORD-01 | Phase 2 | Pending |
-| CHORD-02 | Phase 2 | Pending |
+| CHORD-01 | Phase 2 | Complete |
+| CHORD-02 | Phase 2 | Complete |
 | CHORD-03 | Phase 2 | Pending |
 | CTRL-01 | Phase 2 | Pending |
 | CTRL-02 | Phase 2 | Pending |
