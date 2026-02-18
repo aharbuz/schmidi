@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 1 of 5 (Audio Foundation)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: Executing
-Last activity: 2026-02-18 — Completed 01-02 (Audio engine core)
+Last activity: 2026-02-18 — Completed 01-03 (App shell + state management)
 
-Progress: [████░░░░░░] 8%
+Progress: [██████░░░░] 12%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 10min
-- Total execution time: 20min
+- Total plans completed: 3
+- Average duration: 7min
+- Total execution time: 22min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Audio Foundation | 2 | 20min | 10min |
+| 1. Audio Foundation | 3 | 22min | 7min |
 
 **Recent Trend:**
-- Last 5 plans: 15min, 5min
+- Last 5 plans: 15min, 5min, 2min
 - Trend: improving
 
 *Updated after each plan completion*
@@ -52,6 +52,9 @@ Recent decisions affecting current work:
 - 01-02: Persistent oscillators always running, gain controls audibility -- avoids click/pop from start/stop
 - 01-02: Envelope decay/release use setTargetAtTime with timeConstant=period/3 for ~95% convergence
 - 01-02: Hard silence setValueAtTime(0) at release*1.67 to prevent lingering near-zero oscillation
+- 01-03: VoiceManager stored as module-level variable (not reactive state) to avoid re-render overhead
+- 01-03: Splash screen gates AudioContext resume on user click per Web Audio autoplay policy
+- 01-03: Animation loop uses rAF polling rather than event-driven updates for consistent 60fps visual feedback
 
 ### Pending Todos
 
@@ -66,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 01-02-PLAN.md
-Resume file: .planning/phases/01-audio-foundation/01-02-SUMMARY.md
+Stopped at: Completed 01-03-PLAN.md
+Resume file: .planning/phases/01-audio-foundation/01-03-SUMMARY.md
