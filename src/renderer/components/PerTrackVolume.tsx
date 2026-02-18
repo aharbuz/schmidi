@@ -12,10 +12,9 @@ const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
  * degree) labeled with Roman numerals. The panel slides out from a compact
  * toggle button.
  *
- * **Scope boundary (Phase 2):** The sliders are wired to local display state
- * only. Full per-voice-group gain routing (individual GainNodes per chord group
- * in ChordVoiceManager) is deferred to Phase 3 refinement. The sliders read/write
- * store values to establish the UI contract; audio routing will be added later.
+ * Each slider is a controlled input wired through the Zustand store to
+ * per-degree GainNodes in ChordVoiceManager, providing independent volume
+ * control for each chord degree in the audio chain.
  */
 export function PerTrackVolume() {
   const perTrackExpanded = useSynthStore((s) => s.perTrackExpanded);
@@ -67,14 +66,13 @@ export function PerTrackVolume() {
 /**
  * Individual per-track vertical slider.
  *
- * Phase 2 scope: displays and stores the value but does not yet
- * route to per-group gain nodes in the audio engine.
+ * Controlled input reading from store perTrackVolumes and dispatching
+ * setPerTrackVolume on change, which routes through ChordVoiceManager's
+ * per-degree GainNodes for independent audio level control.
  */
 function PerTrackSlider({ degree, label }: { degree: number; label: string }) {
-  // Phase 2: local state only -- audio routing deferred
-  // Using a local default of 0.7 matching master volume default
-  // When per-group gain is implemented, this will read from store per-track values
-  const defaultValue = 0.7;
+  const volume = useSynthStore((s) => s.perTrackVolumes[degree - 1]);
+  const setPerTrackVolume = useSynthStore((s) => s.setPerTrackVolume);
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -88,7 +86,8 @@ function PerTrackSlider({ degree, label }: { degree: number; label: string }) {
         min={0}
         max={1}
         step={0.01}
-        defaultValue={defaultValue}
+        value={volume}
+        onChange={(e) => setPerTrackVolume(degree, parseFloat(e.target.value))}
         title={`${label} volume`}
         className="per-track-slider"
         style={{
