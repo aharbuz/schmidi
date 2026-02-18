@@ -25,3 +25,18 @@ Executed all 5 plans of Phase 1 (Audio Foundation) via `/gsd:execute-phase 1`:
 
 ### Key deviations
 - 01-01: Switched from `@tailwindcss/vite` to `@tailwindcss/postcss` (Forge CJS incompatibility)
+
+## 2026-02-18: White Screen Debugging
+
+### Findings
+- App launches but shows white screen — no console errors
+- Root cause: **ES module import chain fails silently** in one of App.tsx's component imports
+- Confirmed: minimal React App (no component imports) renders correctly — "React is working!" shows in cyan
+- Secondary issue: root `index.html` was missing CSS `<link>` tag (fixed)
+- `@vitejs/plugin-react` is ESM-only, can't be used with Forge's CJS config bundling (same as Tailwind)
+- Vite's built-in esbuild JSX transform works fine without the React plugin
+
+### What needs fixing
+- One or more component imports in App.tsx silently crash the module chain
+- Need to binary-search which import: comment out half the imports, test, narrow down
+- Most likely culprits: components that access `window.schmidiAPI` (preload), or audio engine modules with browser-only APIs
