@@ -39,10 +39,23 @@ export class ChordVoiceManager {
   private allocations: Map<string, ChordAllocation>;
   private ctx: AudioContext;
   private nextChordSeq = 0;
+  /** Per-degree GainNodes for independent volume control (degree 1-7) */
+  private degreeGains: Map<number, GainNode>;
+  private masterGain: GainNode;
 
   constructor(ctx: AudioContext, masterGain: GainNode, poolSize = CHORD_VOICE_POOL_SIZE) {
     this.ctx = ctx;
+    this.masterGain = masterGain;
     this.allocations = new Map();
+
+    // Create per-degree GainNodes (1-7), each routed to masterGain
+    this.degreeGains = new Map();
+    for (let degree = 1; degree <= 7; degree++) {
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = 0.7; // Default per-track volume
+      gainNode.connect(masterGain);
+      this.degreeGains.set(degree, gainNode);
+    }
 
     // Create voice pool -- all voices start silent with oscillators running (persistent pattern)
     this.voices = [];
@@ -67,8 +80,12 @@ export class ChordVoiceManager {
     const chordId = `${degree}-${Date.now()}-${this.nextChordSeq++}`;
     const voiceIndices = this.allocateVoices(VOICES_PER_CHORD);
 
+    // Route voices through the degree's GainNode for independent volume control
+    const degreeGain = this.degreeGainFor(degree);
+
     for (let i = 0; i < voiceIndices.length; i++) {
       const voice = this.voices[voiceIndices[i]];
+      voice.reconnect(degreeGain);
       voice.setFrequency(frequencies[i] ?? frequencies[0]);
       voice.setWaveform(waveform);
       voice.setADSR(adsr);
@@ -160,6 +177,34 @@ export class ChordVoiceManager {
     }
   }
 
+  /**
+   * Set volume for a specific chord degree with anti-click scheduling.
+   * Uses the same cancel -> anchor -> linearRamp pattern as masterBus.
+   */
+  setDegreeVolume(degree: number, volume: number): void {
+    const gainNode = this.degreeGains.get(degree);
+    if (!gainNode) return;
+
+    const now = this.ctx.currentTime;
+    const param = gainNode.gain;
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(param.value, now);
+    param.linearRampToValueAtTime(volume, now + 0.02); // 20ms anti-click ramp
+  }
+
+  /** Get the GainNode for a degree, falling back to a new one at default gain */
+  private degreeGainFor(degree: number): GainNode {
+    const existing = this.degreeGains.get(degree);
+    if (existing) return existing;
+
+    // Safety fallback: create a GainNode if degree is out of range
+    const gainNode = this.ctx.createGain();
+    gainNode.gain.value = 0.7;
+    gainNode.connect(this.masterGain);
+    this.degreeGains.set(degree, gainNode);
+    return gainNode;
+  }
+
   /** Read-only access to current allocations (for retuning, debugging) */
   getAllocations(): Map<string, ChordAllocation> {
     return this.allocations;
@@ -242,12 +287,16 @@ export class ChordVoiceManager {
     return oldest;
   }
 
-  /** Stop and disconnect all voices, clear allocations */
+  /** Stop and disconnect all voices, clear allocations, disconnect degree gains */
   dispose(): void {
     for (const voice of this.voices) {
       voice.dispose();
     }
+    for (const gainNode of this.degreeGains.values()) {
+      gainNode.disconnect();
+    }
     this.voices = [];
     this.allocations.clear();
+    this.degreeGains.clear();
   }
 }

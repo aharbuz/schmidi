@@ -150,6 +150,12 @@ export class Voice {
     };
   }
 
+  /** Reconnect voice output to a new destination node */
+  reconnect(destination: AudioNode): void {
+    this.gainNode.disconnect();
+    this.gainNode.connect(destination);
+  }
+
   /** Stop and disconnect all audio nodes */
   dispose(): void {
     try {

@@ -31,6 +31,7 @@ interface SynthState {
   chordGrid: ChordData[];
   activeChordDegrees: Set<number>;
   perTrackExpanded: boolean;
+  perTrackVolumes: number[];
 
   // Actions (Phase 1)
   setAudioReady: (ready: boolean) => void;
@@ -49,6 +50,7 @@ interface SynthState {
   triggerChordByDegree: (degree: number) => void;
   releaseChordByDegree: (degree: number) => void;
   togglePerTrackPanel: () => void;
+  setPerTrackVolume: (degree: number, volume: number) => void;
 }
 
 // Module-level VoiceManager reference -- NOT reactive state
@@ -108,6 +110,7 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   chordGrid: defaultChordGrid,
   activeChordDegrees: new Set<number>(),
   perTrackExpanded: false,
+  perTrackVolumes: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7],
 
   // Actions (Phase 1)
   setAudioReady: (ready) => set({ audioReady: ready }),
@@ -185,5 +188,12 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   togglePerTrackPanel: () => {
     const { perTrackExpanded } = get();
     set({ perTrackExpanded: !perTrackExpanded });
+  },
+
+  setPerTrackVolume: (degree, volume) => {
+    chordVoiceManagerRef?.setDegreeVolume(degree, volume);
+    const copy = [...get().perTrackVolumes];
+    copy[degree - 1] = volume;
+    set({ perTrackVolumes: copy });
   },
 }));

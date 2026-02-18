@@ -92,8 +92,9 @@ describe('ChordVoiceManager', () => {
 
   it('creates voice pool of configured size', () => {
     // Each Voice creates one oscillator and one gain node
+    // Constructor also creates 7 per-degree GainNodes for independent volume control
     expect(mock.createdOscillators).toHaveLength(CHORD_VOICE_POOL_SIZE);
-    expect(mock.createdGainNodes).toHaveLength(CHORD_VOICE_POOL_SIZE);
+    expect(mock.createdGainNodes).toHaveLength(CHORD_VOICE_POOL_SIZE + 7);
   });
 
   // -------------------------------------------------------------------------
