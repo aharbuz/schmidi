@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. User can adjust ADSR controls and hear the amplitude envelope shape change on the next note
   5. Audio response is immediate — no perceptible lag between interaction and sound (sub-50ms)
 **Plans**: 5 plans
-- [ ] 01-01-PLAN.md -- Electron app scaffold + shell (Forge + Vite + React + TS + Tailwind + main process)
+- [x] 01-01-PLAN.md -- Electron app scaffold + shell (Forge + Vite + React + TS + Tailwind + main process)
 - [ ] 01-02-PLAN.md -- Audio engine core with TDD (Voice, VoiceManager, masterBus, ADSR, Vitest)
 - [ ] 01-03-PLAN.md -- App shell UI + state (Zustand store, splash screen, title bar, hooks)
 - [ ] 01-04-PLAN.md -- Instrument controls (voice buttons, waveform selector, ADSR controls, envelope curve)
@@ -90,7 +90,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Audio Foundation | 0/5 | Planned | - |
+| 1. Audio Foundation | 1/5 | In Progress | - |
 | 2. Chord Engine + Synth Mode | 0/TBD | Not started | - |
 | 3. Convergence Engine + Slide Mode | 0/TBD | Not started | - |
 | 4. Visualization | 0/TBD | Not started | - |
