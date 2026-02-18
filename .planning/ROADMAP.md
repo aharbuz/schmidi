@@ -47,7 +47,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User releases a chord button and hears the note release correctly (no hanging notes, no clicks)
   4. User adjusts the master volume slider and the overall output level changes smoothly
   5. User adjusts per-track volume sliders and individual track levels change independently
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 02-01-PLAN.md -- Music theory types + diatonic chord engine with TDD (tonal, chordEngine, noteFrequency)
+- [ ] 02-02-PLAN.md -- ChordVoiceManager voice pool with allocation, release, and voice stealing
+- [ ] 02-03-PLAN.md -- Zustand store extension + chord arc UI + key/mode selectors
+- [ ] 02-04-PLAN.md -- App layout integration, keyboard handler, per-track volume, verification
 
 ### Phase 3: Convergence Engine + Slide Mode
 **Goal**: The core Schmidi mechanic: N persistent pitch tracks glide continuously through pitch space and converge simultaneously on chord target notes when a chord is pressed, with volume swelling on approach and fading on departure
@@ -91,7 +95,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Audio Foundation | 1/5 | In Progress | - |
-| 2. Chord Engine + Synth Mode | 0/TBD | Not started | - |
+| 2. Chord Engine + Synth Mode | 0/4 | Not started | - |
 | 3. Convergence Engine + Slide Mode | 0/TBD | Not started | - |
 | 4. Visualization | 0/TBD | Not started | - |
 | 5. Instrument Personality | 0/TBD | Not started | - |
