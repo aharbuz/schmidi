@@ -7,6 +7,9 @@ import { VoiceButton } from './components/VoiceButton';
 import { WaveformSelector } from './components/WaveformSelector';
 import { ADSRControls } from './components/ADSRControls';
 import { EnvelopeCurve } from './components/EnvelopeCurve';
+import { VolumeControl } from './components/VolumeControl';
+import { Oscilloscope } from './components/Oscilloscope';
+import { StatusBar } from './components/StatusBar';
 import { DEFAULT_VOICE_KEYS } from './audio/constants';
 
 /**
@@ -99,14 +102,15 @@ export default function App() {
           <EnvelopeCurve />
         </section>
 
-        {/* Right column: placeholder for volume + oscilloscope (Plan 05) */}
-        <section className="w-48 flex flex-col items-center justify-center gap-3">
-          <div className="w-full h-full rounded-lg border border-gray-800/50 bg-[#0e0e16] flex items-center justify-center text-gray-600 text-xs">
-            Volume + Scope
-          </div>
+        {/* Right column: Volume control + Oscilloscope */}
+        <section className="w-48 flex flex-col items-center justify-center gap-4">
+          <VolumeControl />
+          <Oscilloscope />
         </section>
       </main>
-      {/* StatusBar will go here in Plan 05 */}
+
+      {/* Status bar: AudioContext diagnostics */}
+      <StatusBar />
     </div>
   );
 }
