@@ -81,34 +81,34 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDIO-01 | — | Pending |
-| AUDIO-02 | — | Pending |
-| AUDIO-03 | — | Pending |
-| AUDIO-04 | — | Pending |
-| CHORD-01 | — | Pending |
-| CHORD-02 | — | Pending |
-| CHORD-03 | — | Pending |
-| SLIDE-01 | — | Pending |
-| SLIDE-02 | — | Pending |
-| SLIDE-03 | — | Pending |
-| SLIDE-04 | — | Pending |
-| SLIDE-05 | — | Pending |
-| SLIDE-06 | — | Pending |
-| SLIDE-07 | — | Pending |
-| SLIDE-08 | — | Pending |
-| SLIDE-09 | — | Pending |
-| VIZ-01 | — | Pending |
-| VIZ-02 | — | Pending |
-| VIZ-03 | — | Pending |
-| VIZ-04 | — | Pending |
-| CTRL-01 | — | Pending |
-| CTRL-02 | — | Pending |
+| AUDIO-01 | Phase 1 | Pending |
+| AUDIO-02 | Phase 1 | Pending |
+| AUDIO-03 | Phase 1 | Pending |
+| AUDIO-04 | Phase 1 | Pending |
+| CHORD-01 | Phase 2 | Pending |
+| CHORD-02 | Phase 2 | Pending |
+| CHORD-03 | Phase 2 | Pending |
+| CTRL-01 | Phase 2 | Pending |
+| CTRL-02 | Phase 2 | Pending |
+| SLIDE-01 | Phase 3 | Pending |
+| SLIDE-02 | Phase 3 | Pending |
+| SLIDE-03 | Phase 3 | Pending |
+| SLIDE-04 | Phase 3 | Pending |
+| SLIDE-05 | Phase 3 | Pending |
+| VIZ-01 | Phase 4 | Pending |
+| VIZ-02 | Phase 4 | Pending |
+| VIZ-03 | Phase 4 | Pending |
+| VIZ-04 | Phase 4 | Pending |
+| SLIDE-06 | Phase 5 | Pending |
+| SLIDE-07 | Phase 5 | Pending |
+| SLIDE-08 | Phase 5 | Pending |
+| SLIDE-09 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 22 total
-- Mapped to phases: 0
-- Unmapped: 22
+- Mapped to phases: 22
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap creation*
