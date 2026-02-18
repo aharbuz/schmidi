@@ -1,30 +1,69 @@
 /**
  * Diatonic chord generation from key + mode.
  *
- * Stub created by 02-02 execution to unblock typecheck.
- * Plan 02-01 will provide the full implementation using tonal library.
+ * Uses the tonal library (Mode.triads, Mode.notes, Note.freq) to generate
+ * ChordData for all 7 diatonic triads in any key/mode combination.
  */
 
+import { Mode, Note } from 'tonal';
 import type { ChordData, ChordQuality } from './musicTypes';
+import { HARMONIC_FUNCTIONS } from './musicTypes';
+import { buildTriadWithOctave } from './noteFrequency';
+
+// ---------------------------------------------------------------------------
+// Mode name aliases: user-facing names -> tonal internal names
+// ---------------------------------------------------------------------------
+
+const MODE_ALIASES: Record<string, string> = {
+  major: 'ionian',
+  minor: 'aeolian',
+  dorian: 'dorian',
+  phrygian: 'phrygian',
+  lydian: 'lydian',
+  mixolydian: 'mixolydian',
+  aeolian: 'aeolian',
+  locrian: 'locrian',
+};
+
+// ---------------------------------------------------------------------------
+// getChordQuality
+// ---------------------------------------------------------------------------
 
 /**
  * Parse chord quality from a tonal chord symbol.
- * "Dm" -> "minor", "C" -> "major", "Bdim" -> "diminished"
+ *
+ * tonal Mode.triads() returns symbols like:
+ * - "C" (major), "Dm" (minor), "Bdim" (diminished)
+ * - Sharps/flats in root: "F#", "Bbm", "Ebdim"
+ *
+ * Strategy: strip root note (letter + optional accidentals), examine suffix.
  */
 export function getChordQuality(chordSymbol: string): ChordQuality {
-  if (chordSymbol.endsWith('dim')) return 'diminished';
-  // Check for 'm' suffix that is NOT part of 'dim'
-  const root = chordSymbol.replace(/[#b]/, '');
-  if (root.length > 1 && chordSymbol.endsWith('m')) return 'minor';
+  if (chordSymbol.includes('dim')) return 'diminished';
+  if (chordSymbol.includes('aug')) return 'augmented';
+
+  // Strip root letter + accidentals to get the suffix
+  const suffix = chordSymbol.replace(/^[A-G][#b]*/, '');
+
+  if (suffix.startsWith('m') && !suffix.startsWith('maj')) return 'minor';
   return 'major';
 }
+
+// ---------------------------------------------------------------------------
+// deriveRomanNumeral
+// ---------------------------------------------------------------------------
 
 /** Roman numeral labels by degree index (0-based) */
 const ROMAN_UPPER = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 const ROMAN_LOWER = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'];
 
 /**
- * Derive a Roman numeral from degree index and chord quality.
+ * Derive a Roman numeral from degree index (0-based) and chord quality.
+ *
+ * - Major: uppercase (I, IV, V)
+ * - Minor: lowercase (ii, iii, vi)
+ * - Diminished: lowercase + degree symbol (vii deg)
+ * - Augmented: uppercase + plus sign (III+)
  */
 export function deriveRomanNumeral(degreeIndex: number, quality: ChordQuality): string {
   switch (quality) {
@@ -39,11 +78,39 @@ export function deriveRomanNumeral(degreeIndex: number, quality: ChordQuality): 
   }
 }
 
+// ---------------------------------------------------------------------------
+// generateDiatonicChords
+// ---------------------------------------------------------------------------
+
 /**
  * Generate 7 diatonic chords for a given key and mode.
- * Stub: returns empty array. Plan 02-01 will implement with tonal.
+ *
+ * @param key - Root key name (e.g. "C", "D", "F#", "Bb")
+ * @param mode - Mode name (e.g. "major", "dorian", "locrian")
+ * @returns Array of 7 ChordData objects, one per scale degree
  */
-export function generateDiatonicChords(_key: string, _mode: string): ChordData[] {
-  // Stub -- plan 02-01 will implement
-  return [];
+export function generateDiatonicChords(key: string, mode: string): ChordData[] {
+  const tonalMode = MODE_ALIASES[mode] ?? mode;
+
+  // Get triads and scale notes from tonal
+  const triads = Mode.triads(tonalMode, key);
+  const scaleNotes = Mode.notes(tonalMode, key);
+
+  return triads.map((chordSymbol, i) => {
+    const quality = getChordQuality(chordSymbol);
+    const rootNote = scaleNotes[i];
+    const noteNames = buildTriadWithOctave(scaleNotes, i, 4);
+    const frequencies = noteNames.map((n) => Note.freq(n) as number);
+
+    return {
+      degree: i + 1,
+      romanNumeral: deriveRomanNumeral(i, quality),
+      chordSymbol,
+      rootNote,
+      noteNames,
+      frequencies,
+      harmonicFunction: HARMONIC_FUNCTIONS[i],
+      quality,
+    };
+  });
 }

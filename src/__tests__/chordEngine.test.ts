@@ -209,7 +209,7 @@ describe('generateDiatonicChords — all 8 modes for C key', () => {
     lydian:     ['major', 'major', 'minor', 'diminished', 'major', 'minor', 'minor'],
     mixolydian: ['major', 'minor', 'diminished', 'major', 'minor', 'minor', 'major'],
     aeolian:    ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major'],
-    locrian:    ['diminished', 'minor', 'major', 'minor', 'major', 'major', 'minor'],
+    locrian:    ['diminished', 'major', 'minor', 'minor', 'major', 'major', 'minor'],
   };
 
   for (const [mode, qualities] of Object.entries(expectedQualities)) {
