@@ -1,31 +1,22 @@
 ---
 phase: 02-chord-engine-synth-mode
-verified: 2026-02-18T21:36:00Z
-status: gaps_found
-score: 4/5 success criteria verified
-gaps:
-  - truth: "User adjusts per-track volume sliders and individual track levels change independently"
-    status: failed
-    reason: "PerTrackVolume sliders are uncontrolled inputs (defaultValue only, no onChange handler). No per-track volume state exists in synthStore beyond the expand/collapse boolean. No audio routing exists. Slider movement has zero effect on audio output."
-    artifacts:
-      - path: "src/renderer/components/PerTrackVolume.tsx"
-        issue: "PerTrackSlider uses defaultValue (uncontrolled, line 91) with no onChange handler. Value is never persisted or forwarded to audio engine."
-      - path: "src/renderer/store/synthStore.ts"
-        issue: "No perTrackVolumes state array. Only perTrackExpanded: boolean exists. No setPerTrackVolume action."
-      - path: "src/renderer/audio/ChordVoiceManager.ts"
-        issue: "No per-group gain nodes. All voices share masterGain directly. No individual volume control per chord group."
-    missing:
-      - "Add perTrackVolumes: number[] (7 values, default 0.7) to synthStore state"
-      - "Add setPerTrackVolume(degree: number, volume: number) action to synthStore"
-      - "Wire onChange in PerTrackSlider to call store.setPerTrackVolume(degree, value)"
-      - "Either add per-group GainNodes in ChordVoiceManager or accept UI-only scope with explicit deferred note"
+verified: 2026-02-18T22:10:00Z
+status: human_needed
+score: 5/5 success criteria verified
+re_verification:
+  previous_status: gaps_found
+  previous_score: 4/5
+  gaps_closed:
+    - "User adjusts per-track volume sliders and individual track levels change independently"
+  gaps_remaining: []
+  regressions: []
 human_verification:
   - test: "Launch app, click Start, press A key"
     expected: "Chord I (C major in default key) plays with current waveform and ADSR — three oscillator tones heard simultaneously"
     why_human: "Audio playback cannot be verified programmatically; requires listening"
   - test: "Press and hold A, then also press F simultaneously"
     expected: "Two chords sound simultaneously (polychordal output)"
-    why_human: "Polychordal audio output requires listening to confirm voices don't cancel or fail to allocate"
+    why_human: "Polychordal audio output requires listening to confirm voices do not cancel or fail to allocate"
   - test: "Release a held chord key"
     expected: "Chord fades via ADSR release envelope, no instant cut, no hanging note"
     why_human: "ADSR release timing and click-free fade requires listening"
@@ -35,14 +26,17 @@ human_verification:
   - test: "Click 'Dorian' in the mode selector"
     expected: "Chord grid updates: first chord becomes minor (i), second minor (ii), etc."
     why_human: "Modal chord quality change needs listening to confirm audio matches displayed Roman numerals"
+  - test: "Expand mix panel, drag chord I slider to 0, press A key"
+    expected: "Chord I is silent; other chords play at their configured level"
+    why_human: "Per-degree audio routing requires listening to confirm degree GainNode controls only that chord"
 ---
 
 # Phase 2: Chord Engine + Synth Mode — Verification Report
 
 **Phase Goal:** A fully playable chord instrument — select any key and mode, get a diatonic chord grid, click chords and hear them with correct envelopes and volume controls
-**Verified:** 2026-02-18T21:36:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-02-18T22:10:00Z
+**Status:** human_needed
+**Re-verification:** Yes — after gap closure (02-05 plan closed CTRL-01 gap)
 
 ## Goal Achievement
 
@@ -51,69 +45,108 @@ human_verification:
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | User selects key/mode and chord grid updates to correct diatonic chords | VERIFIED | KeySelector -> store.setKey -> generateDiatonicChords -> chordGrid; ModeSelector -> store.setMode; ChordArc renders chordGrid |
-| 2 | User clicks/holds chord button and hears chord play with configured waveform and ADSR | VERIFIED* | ChordButton onMouseDown -> store.triggerChordByDegree -> ChordVoiceManager.triggerChord(frequencies, waveform, adsr); keyboard via useChordKeyboard |
+| 2 | User clicks/holds chord button and hears chord play with configured waveform and ADSR | VERIFIED* | ChordButton onMouseDown -> store.triggerChordByDegree -> ChordVoiceManager.triggerChord; keyboard via useChordKeyboard |
 | 3 | User releases chord button, note releases correctly (no hanging notes, no clicks) | VERIFIED* | ChordButton onMouseUp/onMouseLeave -> store.releaseChordByDegree -> ChordVoiceManager.releaseByDegree -> Voice.triggerRelease (ADSR path) |
 | 4 | User adjusts master volume slider, output level changes smoothly | VERIFIED | VolumeControl -> store.setMasterVolume -> setMasterVolume(bus, vol) -> masterGain.gain; fully wired |
-| 5 | User adjusts per-track volume sliders, individual track levels change independently | FAILED | PerTrackVolume sliders are uncontrolled inputs (no onChange); no per-track volume state in store; no per-group audio routing |
+| 5 | User adjusts per-track volume sliders, individual track levels change independently | VERIFIED* | PerTrackSlider value={volume} + onChange -> store.setPerTrackVolume -> ChordVoiceManager.setDegreeVolume -> degree GainNode gain with anti-click ramp |
 
 *Audio behavior requires human verification; code wiring is confirmed correct.
 
-**Score:** 4/5 success criteria verified (1 gap)
+**Score:** 5/5 success criteria verified (code wiring complete; audio output needs human confirmation)
+
+### Re-verification: Gap Closure Results
+
+**Gap closed (CTRL-01 / Truth #5):** Per-track volume sliders are now fully wired end-to-end.
+
+Commits that closed the gap:
+- `34e1ec3` — feat(02-05): add per-degree GainNodes and per-track volume state
+- `e612e65` — feat(02-05): wire PerTrackVolume sliders to store and audio engine
+
+Evidence in actual code (not just SUMMARY claims):
+
+1. `src/renderer/components/PerTrackVolume.tsx` line 89: `value={volume}` — controlled input reading from store
+2. `src/renderer/components/PerTrackVolume.tsx` line 90: `onChange={(e) => setPerTrackVolume(degree, parseFloat(e.target.value))}` — wired to store action
+3. `src/renderer/store/synthStore.ts` line 34: `perTrackVolumes: number[]` in SynthState interface
+4. `src/renderer/store/synthStore.ts` line 113: initialized as `[0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]`
+5. `src/renderer/store/synthStore.ts` lines 193-198: `setPerTrackVolume` action calls `chordVoiceManagerRef?.setDegreeVolume(degree, volume)` then updates state immutably
+6. `src/renderer/audio/ChordVoiceManager.ts` lines 52-58: 7 per-degree GainNodes created in constructor, each connected to masterGain
+7. `src/renderer/audio/ChordVoiceManager.ts` lines 83-88: `triggerChord` calls `voice.reconnect(degreeGain)` to route each voice through its degree's GainNode
+8. `src/renderer/audio/ChordVoiceManager.ts` lines 184-193: `setDegreeVolume` uses anti-click scheduling (cancel -> anchor -> linearRamp over 20ms)
+9. `src/renderer/audio/Voice.ts` lines 153-157: `reconnect(destination: AudioNode)` method disconnects and reconnects gainNode output
+
+Audio chain verified by code inspection: oscillator -> voice gainNode (ADSR) -> degree GainNode (per-track volume) -> masterGain -> compressor -> analyser -> destination
+
+### Regressions Check
+
+Previously passing truths verified as still intact:
+
+- `generateDiatonicChords` imported and called in store setKey/setMode — INTACT
+- `triggerChordByDegree`/`releaseChordByDegree` wired in ChordArc.tsx lines 61-62 — INTACT
+- `setMasterVolume` wired through masterBus in store lines 137-143 — INTACT
+- `useChordKeyboard()` called at App.tsx line 35 — INTACT
+- All 87 tests pass (7 test files, 0 failures) — INTACT
+- TypeScript compiles with zero errors — INTACT
 
 ### Required Artifacts
 
 | Artifact | Status | Details |
 |----------|--------|---------|
-| `src/renderer/music/musicTypes.ts` | VERIFIED | ChordData interface, HarmonicFunction, ChordQuality, MusicalKey, MusicalMode types; CIRCLE_OF_FIFTHS, MODES, HARMONIC_FUNCTIONS, CHORD_KEYS constants — all present and exported |
-| `src/renderer/music/chordEngine.ts` | VERIFIED | generateDiatonicChords, getChordQuality, deriveRomanNumeral exported; uses tonal Mode.triads/Mode.notes/Note.freq; buildTriadWithOctave wired in |
-| `src/renderer/music/noteFrequency.ts` | VERIFIED | buildTriadWithOctave exported; octave crossing detection via note letter index comparison |
-| `src/renderer/audio/ChordVoiceManager.ts` | VERIFIED | Pool of 24 voices; triggerChord, releaseChord, releaseByDegree, retuneActiveChords, setWaveform, setADSR, dispose — all implemented and substantive |
-| `src/__tests__/chordEngine.test.ts` | VERIFIED | 32 tests — all 8 modes for C key, D dorian, B locrian, F lydian, quality parsing, Roman numerals, harmonic functions, frequencies |
-| `src/__tests__/noteFrequency.test.ts` | VERIFIED | 13 tests — all 7 C major degrees, D dorian, B locrian, sharps, flats, different base octaves |
-| `src/__tests__/ChordVoiceManager.test.ts` | VERIFIED | 9 tests — pool size, allocation, release, releaseByDegree, polychordal, voice stealing, retuning, waveform, dispose |
-| `src/renderer/store/synthStore.ts` | VERIFIED | selectedKey, selectedMode, chordGrid, activeChordDegrees state; setKey, setMode, triggerChordByDegree, releaseChordByDegree, togglePerTrackPanel actions; chordVoiceManagerRef module-level ref; Phase 1 state intact |
-| `src/renderer/components/ChordArc.tsx` | VERIFIED | Reads chordGrid, activeChordDegrees, triggerChordByDegree, releaseChordByDegree from store; positions 7 ChordButtons via Math.sin/cos arc; degree I at top-center |
-| `src/renderer/components/ChordButton.tsx` | VERIFIED | Roman numeral primary, rootNote secondary, keyLabel always visible; harmonic function color coding (tonic=indigo, subdominant=amber, dominant=rose); tonic chord larger (w-20 h-20 vs w-16 h-16); active state scale-110 + glow; onMouseDown/Up/Leave event handlers |
-| `src/renderer/components/KeySelector.tsx` | VERIFIED | CIRCLE_OF_FIFTHS 12-key circular layout; active key highlighted white; click dispatches setKey |
-| `src/renderer/components/ModeSelector.tsx` | VERIFIED | MODES 8-mode segmented horizontal control; active mode filled; click dispatches setMode |
-| `src/renderer/hooks/useChordKeyboard.ts` | VERIFIED | Maps A-J to degrees 1-7; useRef<Set> held-key tracking; repeat guard; polychordal support; listeners active only when audioReady |
-| `src/renderer/components/PerTrackVolume.tsx` | STUB/PARTIAL | Expand/collapse toggle works (wired to perTrackExpanded store state); 7 sliders render with Roman numeral labels; BUT sliders use defaultValue (uncontrolled, no onChange), no audio routing, no store values for individual levels |
-| `src/renderer/hooks/useAudioInit.ts` | VERIFIED | Creates VoiceManager + ChordVoiceManager in sequence; ChordVoiceManager connected to vm.getMasterBus().masterGain; setChordVoiceManager called; dispose handled |
-| `src/renderer/App.tsx` | VERIFIED | ChordArc as center instrument face; KeySelector + ModeSelector + WaveformSelector + ADSRControls in left column; VolumeControl + Oscilloscope + PerTrackVolume in right; useChordKeyboard() called; Phase 1 VoiceButton grid removed |
+| `src/renderer/music/musicTypes.ts` | VERIFIED | ChordData, MusicalKey, MusicalMode types; constants CIRCLE_OF_FIFTHS, MODES, HARMONIC_FUNCTIONS, CHORD_KEYS |
+| `src/renderer/music/chordEngine.ts` | VERIFIED | generateDiatonicChords, getChordQuality, deriveRomanNumeral; tonal integration |
+| `src/renderer/music/noteFrequency.ts` | VERIFIED | buildTriadWithOctave with octave crossing detection |
+| `src/renderer/audio/Voice.ts` | VERIFIED | ADSR voice + new reconnect(destination) method at lines 153-157 |
+| `src/renderer/audio/ChordVoiceManager.ts` | VERIFIED | 24-voice pool; 7 degree GainNodes; triggerChord routes through degree GainNode; setDegreeVolume with anti-click; dispose disconnects all gainNodes |
+| `src/__tests__/chordEngine.test.ts` | VERIFIED | 32 tests across all 8 modes |
+| `src/__tests__/noteFrequency.test.ts` | VERIFIED | 13 tests across keys, octaves, accidentals |
+| `src/__tests__/ChordVoiceManager.test.ts` | VERIFIED | 9 tests including updated pool size assertion (CHORD_VOICE_POOL_SIZE + 7) |
+| `src/renderer/store/synthStore.ts` | VERIFIED | perTrackVolumes state array (7 values at 0.7); setPerTrackVolume action wired to audio |
+| `src/renderer/components/ChordArc.tsx` | VERIFIED | Reads chordGrid, activeChordDegrees, triggerChordByDegree, releaseChordByDegree from store |
+| `src/renderer/components/ChordButton.tsx` | VERIFIED | onMouseDown/Up/Leave handlers; harmonic function color coding |
+| `src/renderer/components/KeySelector.tsx` | VERIFIED | 12-key circular layout dispatching setKey |
+| `src/renderer/components/ModeSelector.tsx` | VERIFIED | 8-mode selector dispatching setMode |
+| `src/renderer/hooks/useChordKeyboard.ts` | VERIFIED | A-J mapped to degrees 1-7; polychordal support; repeat guard |
+| `src/renderer/components/PerTrackVolume.tsx` | VERIFIED | Controlled sliders (value + onChange) wired to store; no defaultValue; no deferral comment |
+| `src/renderer/hooks/useAudioInit.ts` | VERIFIED | Creates VoiceManager + ChordVoiceManager; ChordVoiceManager connected to masterGain |
+| `src/renderer/App.tsx` | VERIFIED | ChordArc center; KeySelector + ModeSelector + WaveformSelector + ADSRControls left; VolumeControl + Oscilloscope + PerTrackVolume right |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `chordEngine.ts` | `tonal` | `import { Mode, Note }` | WIRED | Mode.triads, Mode.notes, Note.freq all used in generateDiatonicChords |
+| `chordEngine.ts` | `tonal` | `import { Mode, Note }` | WIRED | Mode.triads, Mode.notes, Note.freq all used |
 | `chordEngine.ts` | `noteFrequency.ts` | `buildTriadWithOctave` | WIRED | imported and called for each chord degree |
-| `synthStore.ts` | `chordEngine.ts` | `generateDiatonicChords` | WIRED | called in setKey, setMode, and for defaultChordGrid initialization |
-| `synthStore.ts` | `ChordVoiceManager.ts` | `chordVoiceManagerRef` | WIRED | module-level ref, setChordVoiceManager/getChordVoiceManager exported; ref used in triggerChordByDegree, releaseChordByDegree, setKey, setMode, setWaveform, setADSR |
-| `ChordArc.tsx` | `synthStore.ts` | `useSynthStore` | WIRED | reads chordGrid, activeChordDegrees, triggerChordByDegree, releaseChordByDegree |
+| `synthStore.ts` | `chordEngine.ts` | `generateDiatonicChords` | WIRED | called in setKey, setMode, defaultChordGrid init |
+| `synthStore.ts` | `ChordVoiceManager.ts` | `chordVoiceManagerRef` | WIRED | used in triggerChordByDegree, releaseChordByDegree, setKey, setMode, setWaveform, setADSR, setPerTrackVolume |
+| `ChordArc.tsx` | `synthStore.ts` | `useSynthStore` | WIRED | reads chordGrid, activeChordDegrees; dispatches triggerChordByDegree, releaseChordByDegree |
 | `KeySelector.tsx` | `synthStore.ts` | `useSynthStore` for setKey | WIRED | selectedKey read, setKey dispatched on click |
 | `ModeSelector.tsx` | `synthStore.ts` | `useSynthStore` for setMode | WIRED | selectedMode read, setMode dispatched on click |
 | `useChordKeyboard.ts` | `synthStore.ts` | `triggerChordByDegree/releaseChordByDegree` | WIRED | both actions used in keydown/keyup handlers |
-| `App.tsx` | `ChordArc.tsx` | `<ChordArc />` | WIRED | rendered as center section content |
+| `App.tsx` | `ChordArc.tsx` | `<ChordArc />` | WIRED | rendered as center section |
 | `App.tsx` | `useChordKeyboard.ts` | `useChordKeyboard()` | WIRED | called at top of App component |
-| `useAudioInit.ts` | `ChordVoiceManager.ts` | `new ChordVoiceManager` | WIRED | instantiated and connected to masterGain; setChordVoiceManager called |
-| `PerTrackVolume.tsx` (sliders) | `synthStore.ts` | per-track volume values | NOT WIRED | No onChange handler; no per-track state in store; sliders are display-only |
+| `useAudioInit.ts` | `ChordVoiceManager.ts` | `new ChordVoiceManager` | WIRED | instantiated and connected to masterGain |
+| `PerTrackVolume.tsx` | `synthStore.ts` | `onChange -> setPerTrackVolume` | WIRED | controlled input; onChange dispatches setPerTrackVolume |
+| `synthStore.ts` | `ChordVoiceManager.ts` | `setDegreeVolume` | WIRED | setPerTrackVolume action calls cvm.setDegreeVolume(degree, volume) |
+| `ChordVoiceManager.ts` | `Voice.ts` | `voice.reconnect(degreeGain)` | WIRED | triggerChord routes each voice through degree GainNode |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|----------|
-| CHORD-01 | 02-01, 02-03 | User can select key (C through B) and mode | SATISFIED | KeySelector (12 keys, circle-of-fifths), ModeSelector (8 modes), store.setKey/setMode, generateDiatonicChords |
-| CHORD-02 | 02-01, 02-03 | App generates diatonic chord grid from key + mode | SATISFIED | generateDiatonicChords produces 7 ChordData with qualities, Roman numerals, frequencies; 32 tests pass across all 8 modes |
+| CHORD-01 | 02-01, 02-03 | User can select key (C through B) and mode | SATISFIED | KeySelector (12 keys, circle-of-fifths), ModeSelector (8 modes), store.setKey/setMode, generateDiatonicChords; 32 tests |
+| CHORD-02 | 02-01, 02-03 | App generates diatonic chord grid from key + mode | SATISFIED | generateDiatonicChords produces 7 ChordData with qualities, Roman numerals, frequencies for all 8 modes |
 | CHORD-03 | 02-02, 02-03, 02-04 | User can click/hold chord buttons to play chords (synth mode) | SATISFIED | ChordButton onMouseDown/Up + useChordKeyboard A-J; ChordVoiceManager allocated voices + ADSR; 9 voice pool tests pass |
-| CTRL-01 | 02-04 | Per-track volume sliders for each sliding track and anchor track | BLOCKED | PerTrackVolume renders 7 sliders but they are uncontrolled inputs with no onChange. No audio effect. Success criterion #5 ("individual track levels change independently") not met. |
+| CTRL-01 | 02-04, 02-05 | Per-track volume sliders for each sliding track and anchor track | SATISFIED | PerTrackVolume renders 7 controlled sliders; onChange -> store.setPerTrackVolume -> CVM.setDegreeVolume -> degree GainNode gain; anti-click scheduling |
 | CTRL-02 | 02-04 | Master volume control | SATISFIED | VolumeControl -> store.setMasterVolume -> setMasterVolume(bus, vol) applied to masterGain node immediately |
+
+All 5 Phase 2 requirements satisfied. No orphaned requirements.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| `src/renderer/components/PerTrackVolume.tsx` | 91 | `defaultValue={defaultValue}` on range input — uncontrolled, no onChange | Blocker | Slider drag has zero effect on audio output; CTRL-01 / SC#5 not met |
-| `src/renderer/components/PerTrackVolume.tsx` | 13-15 | Scope boundary comment: "Phase 2 scope: local state only -- audio routing deferred" | Warning | Documented intentionally, but ROADMAP SC#5 requires functional behavior in Phase 2 |
+| None | — | — | — | All previous blocker anti-patterns resolved in 02-05 |
+
+The `defaultValue` uncontrolled input from the previous verification is gone. The scope deferral comment is removed. No new anti-patterns detected.
 
 ### Human Verification Required
 
@@ -126,7 +159,7 @@ human_verification:
 #### 2. Polychordal playback
 
 **Test:** Hold A, then also press F simultaneously.
-**Expected:** Both chord I (C major) and chord IV (F major) sound together, six simultaneous oscillator tones.
+**Expected:** Both chord I (C major) and chord IV (F major) sound together — six simultaneous oscillator tones.
 **Why human:** Polychordal audio requires listening to confirm.
 
 #### 3. ADSR release (no hanging notes)
@@ -147,25 +180,29 @@ human_verification:
 **Expected:** Chord arc labels update to G major diatonic chords (G, Am, Bm, C, D, Em, F#dim).
 **Why human:** Visual label update observable; live retune of active voices requires audio.
 
-### Gaps Summary
+#### 6. Per-track volume (new — gap closure verification)
 
-One gap blocks full goal achievement: **per-track volume sliders do not function**.
+**Test:** Expand mix panel (click Mix toggle), drag chord I slider to 0. Press A (chord I). Press D (chord III).
+**Expected:** Chord I is completely silent; chord III plays at normal volume. Raise slider for I — chord I volume returns.
+**Why human:** Per-degree audio routing requires listening to confirm the degree GainNode controls only that chord's output independently.
 
-The ROADMAP success criterion #5 explicitly states "User adjusts per-track volume sliders and individual track levels change independently." The Phase 2 SUMMARY documented deferring per-group gain routing to Phase 3 as a deliberate scope decision, but this deferred behavior is directly stated as a success criterion for Phase 2 in the ROADMAP.
+### Summary
 
-**Root cause:** `PerTrackSlider` uses `defaultValue` (HTML uncontrolled input) with no `onChange` handler. There is no per-track volume state in the Zustand store (only `perTrackExpanded: boolean`). The `ChordVoiceManager` has no per-group gain nodes — all voices connect directly to `masterGain`.
+This is a re-verification after the 02-05 gap closure plan. The one gap from the initial verification (CTRL-01 / success criterion #5) has been closed in the actual codebase — verified by direct code inspection, not SUMMARY claims.
 
-**What exists:** 7 sliders render correctly with Roman numeral labels. The expand/collapse toggle works. The visual panel is complete.
+All 5 success criteria now have correct code wiring:
+- Music theory layer: 45 tests (chordEngine + noteFrequency) pass
+- Audio voice pool: 9 ChordVoiceManager tests pass
+- Phase 1 tests: 33 tests pass
+- Total: 87 tests, 0 failures
+- TypeScript: 0 errors
 
-**What is missing:**
-1. `perTrackVolumes: number[]` state in synthStore (7 values)
-2. `setPerTrackVolume(degree: number, volume: number)` action
-3. `onChange` in PerTrackSlider wired to the store action
-4. Either per-group GainNodes in ChordVoiceManager OR explicit acceptance that this is UI-only with a Phase 3 note in the ROADMAP
+All Phase 2 requirements (CHORD-01, CHORD-02, CHORD-03, CTRL-01, CTRL-02) are satisfied.
 
-Note: all other 4 success criteria pass automated verification. The music theory layer (45 tests), voice pool (9 tests), and all other Phase 1 tests (33 tests) all pass — 87 tests total with 0 failures. TypeScript type check passes clean.
+Remaining items are audio output behaviors that require human listening verification. Code wiring for all 5 truths is confirmed correct.
 
 ---
 
-_Verified: 2026-02-18T21:36:00Z_
+_Verified: 2026-02-18T22:10:00Z_
 _Verifier: Claude (gsd-verifier)_
+_Re-verification: Yes — initial verification 2026-02-18T21:36:00Z, gap-closure plan 02-05 executed_
