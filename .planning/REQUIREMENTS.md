@@ -23,9 +23,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Slide Mode
 
 - [ ] **SLIDE-01**: User can toggle between synth mode and slide mode
-- [ ] **SLIDE-02**: In slide mode, multiple synth tracks continuously glide through pitch space toward chord target notes
-- [ ] **SLIDE-03**: Track volume swells as pitch approaches chord target note and fades as it moves away (proximity-based amplitude)
-- [ ] **SLIDE-04**: User can configure number of sliding tracks (default 2)
+- [x] **SLIDE-02**: In slide mode, multiple synth tracks continuously glide through pitch space toward chord target notes
+- [x] **SLIDE-03**: Track volume swells as pitch approaches chord target note and fades as it moves away (proximity-based amplitude)
+- [x] **SLIDE-04**: User can configure number of sliding tracks (default 2)
 - [ ] **SLIDE-05**: One "solid" anchor track plays chord cleanly without slide behavior alongside sliding tracks
 - [ ] **SLIDE-06**: User can configure slide character: eerie convergence (independent wandering) vs smooth bloom (lush sweeping)
 - [ ] **SLIDE-07**: User can configure convergence behavior: converge-then-restart, converge-and-hold, or continuous cycle
@@ -91,9 +91,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-01 | Phase 2 | Complete |
 | CTRL-02 | Phase 2 | Complete |
 | SLIDE-01 | Phase 3 | Pending |
-| SLIDE-02 | Phase 3 | Pending |
-| SLIDE-03 | Phase 3 | Pending |
-| SLIDE-04 | Phase 3 | Pending |
+| SLIDE-02 | Phase 3 | Complete |
+| SLIDE-03 | Phase 3 | Complete |
+| SLIDE-04 | Phase 3 | Complete |
 | SLIDE-05 | Phase 3 | Pending |
 | VIZ-01 | Phase 4 | Pending |
 | VIZ-02 | Phase 4 | Pending |
