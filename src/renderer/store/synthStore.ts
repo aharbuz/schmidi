@@ -1,11 +1,14 @@
 import { create } from 'zustand';
+import { Note } from 'tonal';
 import type { ADSRValues, VoiceState, WaveformType } from '../../shared/types';
 import type { VoiceManager } from '../audio/VoiceManager';
 import type { ChordVoiceManager } from '../audio/ChordVoiceManager';
+import type { SlideEngine } from '../audio/SlideEngine';
 import type { ChordData, MusicalKey, MusicalMode } from '../music/musicTypes';
 import { generateDiatonicChords } from '../music/chordEngine';
 import { ENVELOPE_PRESETS } from '../audio/envelopePresets';
 import { setMasterVolume } from '../audio/masterBus';
+import { DEFAULT_SLIDE_CONFIG, type SlideConfig, type SlideTrackState } from '../audio/SlideTrack';
 
 /** Audio status information for UI display */
 interface AudioStatus {
@@ -33,6 +36,12 @@ interface SynthState {
   perTrackExpanded: boolean;
   perTrackVolumes: number[];
 
+  // Slide mode state (Phase 3)
+  slideMode: boolean;
+  slideConfig: SlideConfig;
+  activeSlideDegree: number | null;
+  slideTrackStates: SlideTrackState[];
+
   // Actions (Phase 1)
   setAudioReady: (ready: boolean) => void;
   setWaveform: (type: WaveformType) => void;
@@ -51,6 +60,14 @@ interface SynthState {
   releaseChordByDegree: (degree: number) => void;
   togglePerTrackPanel: () => void;
   setPerTrackVolume: (degree: number, volume: number) => void;
+
+  // Actions (Phase 3 - Slide mode)
+  toggleSlideMode: () => void;
+  triggerSlideChord: (degree: number) => void;
+  releaseSlideChord: () => void;
+  updateSlideConfig: (partial: Partial<SlideConfig>) => void;
+  setSlideTrackCount: (n: number) => void;
+  updateSlideTrackStates: (states: SlideTrackState[]) => void;
 }
 
 // Module-level VoiceManager reference -- NOT reactive state
@@ -77,6 +94,19 @@ export function setChordVoiceManager(cvm: ChordVoiceManager): void {
 /** Get the ChordVoiceManager instance */
 export function getChordVoiceManager(): ChordVoiceManager | null {
   return chordVoiceManagerRef;
+}
+
+// Module-level SlideEngine reference -- NOT reactive state (same pattern)
+let slideEngineRef: SlideEngine | null = null;
+
+/** Set the SlideEngine instance (called once during audio init) */
+export function setSlideEngine(se: SlideEngine): void {
+  slideEngineRef = se;
+}
+
+/** Get the SlideEngine instance */
+export function getSlideEngine(): SlideEngine | null {
+  return slideEngineRef;
 }
 
 /** Default ADSR from the default preset */
@@ -111,6 +141,12 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   activeChordDegrees: new Set<number>(),
   perTrackExpanded: false,
   perTrackVolumes: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7],
+
+  // Initial state (Phase 3 - Slide mode)
+  slideMode: false,
+  slideConfig: { ...DEFAULT_SLIDE_CONFIG },
+  activeSlideDegree: null,
+  slideTrackStates: [],
 
   // Actions (Phase 1)
   setAudioReady: (ready) => set({ audioReady: ready }),
@@ -159,6 +195,11 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
     const { selectedMode } = get();
     const newChordGrid = generateDiatonicChords(key, selectedMode);
     chordVoiceManagerRef?.retuneActiveChords(newChordGrid);
+    // Propagate root frequency to SlideEngine (key root at octave 4)
+    const rootFreq = Note.freq(key + '4');
+    if (rootFreq !== null && slideEngineRef) {
+      slideEngineRef.setRootFreq(rootFreq);
+    }
     set({ selectedKey: key, chordGrid: newChordGrid });
   },
 
@@ -166,6 +207,11 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
     const { selectedKey } = get();
     const newChordGrid = generateDiatonicChords(selectedKey, mode);
     chordVoiceManagerRef?.retuneActiveChords(newChordGrid);
+    // Propagate root frequency to SlideEngine (mode change may affect chord targets)
+    const rootFreq = Note.freq(selectedKey + '4');
+    if (rootFreq !== null && slideEngineRef) {
+      slideEngineRef.setRootFreq(rootFreq);
+    }
     set({ selectedMode: mode, chordGrid: newChordGrid });
   },
 
@@ -196,4 +242,66 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
     copy[degree - 1] = volume;
     set({ perTrackVolumes: copy });
   },
+
+  // Actions (Phase 3 - Slide mode)
+  toggleSlideMode: () => {
+    const { slideMode } = get();
+    if (!slideMode) {
+      // Entering slide mode: start scheduler
+      slideEngineRef?.startScheduler();
+    } else {
+      // Leaving slide mode: pause scheduler
+      slideEngineRef?.pauseScheduler();
+    }
+    set({ slideMode: !slideMode, activeSlideDegree: null });
+  },
+
+  triggerSlideChord: (degree) => {
+    const { chordGrid, activeSlideDegree, slideConfig, currentWaveform, adsr } = get();
+    const chordData = chordGrid[degree - 1];
+    if (!chordData) return;
+
+    // Monophonic: release previous chord before triggering new
+    if (activeSlideDegree !== null && activeSlideDegree !== degree) {
+      slideEngineRef?.releaseChord();
+      if (slideConfig.anchorEnabled) {
+        chordVoiceManagerRef?.releaseByDegree(activeSlideDegree);
+      }
+    }
+
+    // Converge slide tracks to chord target
+    slideEngineRef?.convergeTo(degree, chordData.frequencies);
+
+    // Fire anchor voice if enabled
+    if (slideConfig.anchorEnabled && slideConfig.anchorFiresOnPress) {
+      chordVoiceManagerRef?.triggerChord(degree, chordData.frequencies, currentWaveform, adsr);
+    }
+
+    set({ activeSlideDegree: degree });
+  },
+
+  releaseSlideChord: () => {
+    const { activeSlideDegree, slideConfig } = get();
+    slideEngineRef?.releaseChord();
+
+    // Release anchor voice if it was playing
+    if (activeSlideDegree !== null && slideConfig.anchorEnabled) {
+      chordVoiceManagerRef?.releaseByDegree(activeSlideDegree);
+    }
+
+    set({ activeSlideDegree: null });
+  },
+
+  updateSlideConfig: (partial) => {
+    const { slideConfig } = get();
+    const newConfig = { ...slideConfig, ...partial };
+    slideEngineRef?.updateConfig(partial);
+    set({ slideConfig: newConfig });
+  },
+
+  setSlideTrackCount: (n) => {
+    get().updateSlideConfig({ trackCount: n });
+  },
+
+  updateSlideTrackStates: (states) => set({ slideTrackStates: states }),
 }));
