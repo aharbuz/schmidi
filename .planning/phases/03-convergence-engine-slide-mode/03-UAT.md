@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 03-convergence-engine-slide-mode
 source: 03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md
 started: 2026-02-19T12:00:00Z
-updated: 2026-02-19T11:57:00Z
+updated: 2026-02-19T12:10:00Z
 ---
 
 ## Current Test
@@ -64,27 +64,50 @@ skipped: 0
   reason: "User reported: program starts in standard synth mode with the background tone of the sliding synth"
   severity: major
   test: 0
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "SlideTrack oscillators start at swellGain=0.1 and osc.start() in constructor, connected directly to masterGain with no mode-gating gain node. pauseScheduler() is never called at construction, so initial 0.1 gain is never zeroed."
+  artifacts:
+    - path: "src/renderer/audio/SlideTrack.ts"
+      issue: "Constructor sets swellGain=0.1 and calls osc.start() immediately — audible at construction regardless of app mode"
+    - path: "src/renderer/audio/SlideEngine.ts"
+      issue: "Constructor ramps track gains to idleVolume=0.1 in 10ms, no mode-aware muting"
+    - path: "src/renderer/hooks/useAudioInit.ts"
+      issue: "Line 40 constructs SlideEngine unconditionally on audio init, before slideMode is ever true"
+    - path: "src/renderer/store/synthStore.ts"
+      issue: "toggleSlideMode only controls scheduler start/pause, never touches initial gain"
+  missing:
+    - "Initialize SlideTrack swellGain to 0 in constructor (not 0.1)"
+    - "SlideEngine constructor should set initial track gain to 0, not idleVolume"
+    - "OR call pauseScheduler() after construction in useAudioInit.ts as simplest fix"
 
 - truth: "New slide tracks start without audio pops when track count is increased"
   status: failed
   reason: "User reported: in-key pops on add (which you'd expect unless new tracks fade in)"
   severity: minor
   test: 5
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "setTrackCount creates new SlideTrack whose constructor sets swellGain=0.1 via setValueAtTime (instant). Then scheduleGainRamp to idleVolume=0.1 over 50ms — no fade from 0, oscillator is instantly audible."
+  artifacts:
+    - path: "src/renderer/audio/SlideEngine.ts"
+      issue: "setTrackCount (line 831-834) creates new track then ramps to idleVolume, but constructor already set swellGain=0.1"
+    - path: "src/renderer/audio/SlideTrack.ts"
+      issue: "Constructor initializes swellGain to 0.1 via setValueAtTime — instant non-zero gain causes pop"
+  missing:
+    - "SlideTrack constructor should initialize swellGain to 0"
+    - "setTrackCount should fade new tracks from 0 to idleVolume over ~100ms"
 
 - truth: "Slide configuration controls show tooltips on hover and all controls are visible/scrollable when sections are expanded"
   status: failed
   reason: "User reported: I don't see the tooltips. The expand and collapse works. The expanded windows aren't scrollable and not all controls are visible, particularly when everything is expanded"
   severity: major
   test: 7
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Right column container lacks overflow-y-auto so expanded sections clip. Global CSS sets overflow:hidden on html/body/#root and hides scrollbars. Native title tooltips may be suppressed in Electron frameless window."
+  artifacts:
+    - path: "src/renderer/App.tsx"
+      issue: "Right column container missing overflow-y-auto class"
+    - path: "src/renderer/index.css"
+      issue: "Global overflow:hidden on html/body/#root and ::-webkit-scrollbar display:none prevents scrolling in nested containers"
+    - path: "src/renderer/components/SlideControls.tsx"
+      issue: "title attributes are present on controls but may not render in Electron — needs custom tooltip or CSS-based solution"
+  missing:
+    - "Add overflow-y-auto to right column container in App.tsx"
+    - "Ensure SlideControls panel itself has overflow-y-auto with appropriate max-height"
+    - "Replace native title tooltips with CSS-based tooltips (Electron may not reliably show native title attributes)"
