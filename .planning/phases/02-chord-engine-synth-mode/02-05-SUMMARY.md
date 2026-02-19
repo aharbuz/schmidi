@@ -71,7 +71,7 @@ Each task was committed atomically:
 1. **Task 1: Add per-degree GainNodes to ChordVoiceManager and per-track state to synthStore** - `34e1ec3` (feat)
 2. **Task 2: Wire PerTrackVolume component to store and verify full stack** - `e612e65` (feat)
 
-**Plan metadata:** [pending] (docs: complete plan)
+**Plan metadata:** `a6f782e` (docs: complete plan)
 
 ## Files Created/Modified
 - `src/renderer/audio/Voice.ts` - Added reconnect(destination) method for output re-routing
