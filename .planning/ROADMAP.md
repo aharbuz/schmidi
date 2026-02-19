@@ -64,11 +64,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User hears track volume swell as each track approaches its chord target note and fade as it moves away — the "emerging" feel is present
   4. User changes the number of sliding tracks (from the default of 2) and the track count updates without audio glitches
   5. User hears the solid anchor track play the chord cleanly alongside the sliding tracks — the two behaviors coexist without cancellation
-**Plans**: 4 plans
+**Plans**: 6 plans
 - [x] 03-01-PLAN.md -- SlideTrack + SlideEngine core (idle motion, convergence, proximity gain, Model A + C)
 - [x] 03-02-PLAN.md -- Zustand store extension + audio init + slide keyboard hook + anchor voice
 - [x] 03-03-PLAN.md -- Mode toggle UI + SlideModeUI + all configuration controls with tooltips
 - [x] 03-04-PLAN.md -- Animation loop integration + chord keyboard mode-awareness + verification
+- [ ] 03-05-PLAN.md -- Gap closure: fix slide audio bleed at startup + track count pops
+- [ ] 03-06-PLAN.md -- Gap closure: scrollable slide controls + CSS tooltips
 
 ### Phase 4: Visualization
 **Goal**: The visualization IS the instrument interface — real-time canvas views of sliding tracks that make the convergence visible and serve as the primary UI surface, not a meter
@@ -101,6 +103,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Audio Foundation | 1/5 | In Progress | - |
 | 2. Chord Engine + Synth Mode | 5/5 | Complete | 2026-02-18 |
-| 3. Convergence Engine + Slide Mode | 4/4 | Complete    | 2026-02-19 |
+| 3. Convergence Engine + Slide Mode | 4/6 | Gap Closure | - |
 | 4. Visualization | 0/TBD | Not started | - |
 | 5. Instrument Personality | 0/TBD | Not started | - |
