@@ -38,6 +38,7 @@ export function useAudioInit() {
     // Create SlideEngine -- connects to the SAME masterGain for unified volume control
     // Scheduler not started until user toggles to slide mode (via toggleSlideMode action)
     const se = new SlideEngine(ctx, vm.getMasterBus().masterGain, DEFAULT_SLIDE_CONFIG);
+    se.pauseScheduler(); // Ensure slide tracks are silent until user toggles to slide mode
     setSlideEngine(se);
 
     // Resume AudioContext (required after user gesture)

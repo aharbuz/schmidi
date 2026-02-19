@@ -195,7 +195,7 @@ export class SlideTrack {
 
     // Swell gain: proximity-driven 0-1 (starts at floor volume)
     this.swellGain = ctx.createGain();
-    this.swellGain.gain.setValueAtTime(0.1, ctx.currentTime);
+    this.swellGain.gain.setValueAtTime(0, ctx.currentTime);
 
     // Track gain: per-track volume (user slider, default 0.7)
     this.trackGain = ctx.createGain();

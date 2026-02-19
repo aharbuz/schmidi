@@ -75,7 +75,7 @@ export default function App() {
         </section>
 
         {/* Right column: Volume + Oscilloscope + Per-track mix / Slide controls */}
-        <section className="w-56 flex flex-col items-center gap-4 shrink-0 overflow-hidden">
+        <section className="w-56 flex flex-col items-center gap-4 shrink-0 overflow-y-auto scrollbar-thin">
           <VolumeControl />
           <Oscilloscope />
           {slideMode ? <SlideControls /> : <PerTrackVolume />}

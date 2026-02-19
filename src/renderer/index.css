@@ -7,6 +7,25 @@
   display: none;
 }
 
+/* Thin styled scrollbar for scroll containers */
+.scrollbar-thin::-webkit-scrollbar {
+  display: block;
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;
