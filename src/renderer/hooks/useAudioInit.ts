@@ -1,17 +1,19 @@
 import { useCallback } from 'react';
-import { useSynthStore, setVoiceManager, setChordVoiceManager } from '../store/synthStore';
+import { useSynthStore, setVoiceManager, setChordVoiceManager, setSlideEngine } from '../store/synthStore';
 import { getAudioContext, ensureAudioRunning } from '../audio/audioContext';
 import { VoiceManager } from '../audio/VoiceManager';
 import { ChordVoiceManager } from '../audio/ChordVoiceManager';
+import { SlideEngine } from '../audio/SlideEngine';
+import { DEFAULT_SLIDE_CONFIG } from '../audio/SlideTrack';
 
 /**
  * Hook to initialize the audio engine on user interaction.
  *
  * Returns initAudio (call on splash click) and audioReady status.
- * Creates VoiceManager (Phase 1 voices) and ChordVoiceManager (Phase 2 chord pool),
- * resumes AudioContext, and wires both to Zustand store.
+ * Creates VoiceManager (Phase 1 voices), ChordVoiceManager (Phase 2 chord pool),
+ * and SlideEngine (Phase 3 slide mode). Resumes AudioContext and wires all to Zustand store.
  *
- * Both managers share the same masterGain node for unified volume control.
+ * All three managers share the same masterGain node for unified volume control.
  */
 export function useAudioInit() {
   const audioReady = useSynthStore((s) => s.audioReady);
@@ -32,6 +34,11 @@ export function useAudioInit() {
     // This ensures master volume slider controls both Phase 1 and Phase 2 audio
     const cvm = new ChordVoiceManager(ctx, vm.getMasterBus().masterGain);
     setChordVoiceManager(cvm);
+
+    // Create SlideEngine -- connects to the SAME masterGain for unified volume control
+    // Scheduler not started until user toggles to slide mode (via toggleSlideMode action)
+    const se = new SlideEngine(ctx, vm.getMasterBus().masterGain, DEFAULT_SLIDE_CONFIG);
+    setSlideEngine(se);
 
     // Resume AudioContext (required after user gesture)
     await ensureAudioRunning();
