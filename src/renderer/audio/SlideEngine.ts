@@ -776,7 +776,7 @@ export class SlideEngine {
       const track = new SlideTrack(this.ctx, this.masterGain, startFreq);
 
       // Set initial volume to floor
-      track.scheduleGainRamp(this.config.floorVolume, 0.01);
+      track.scheduleGainRamp(this.config.floorVolume, 0.15); // 150ms fade-in to avoid pop
 
       // Set up convergence
       track.initialDistance = this.semitoneDist(startFreq, targetHz);
@@ -830,7 +830,7 @@ export class SlideEngine {
       // Add new tracks at rootFreq with floor volume, idle state
       for (let i = current; i < n; i++) {
         const track = new SlideTrack(this.ctx, this.masterGain, this.rootFreq);
-        track.scheduleGainRamp(this.config.idleVolume, 0.05);
+        track.scheduleGainRamp(this.config.idleVolume, 0.15); // 150ms fade-in to avoid pop
         this.tracks.push(track);
       }
     } else if (n < current) {
