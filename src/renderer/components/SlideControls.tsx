@@ -21,7 +21,7 @@ import type {
  * All slide mode configuration controls, organized in 5 collapsible sections.
  *
  * Sections: Track Model, Idle Behavior, Convergence, Swell Envelope, Post-Arrival.
- * Every control has a tooltip (native title attribute).
+ * Every control has a tooltip (CSS-based via data-tooltip attribute).
  * All controls call updateSlideConfig with the changed property.
  *
  * Only renders when slideMode is true (guarded by parent).
@@ -357,7 +357,7 @@ export function SlideControls() {
         isOpen={openSections.postArrival}
         onToggle={() => toggleSection('postArrival')}
       >
-        <div className="flex items-center gap-2" title="How long tracks hold at target before departing. Infinite = wait for chord release.">
+        <div className="flex items-center gap-2" data-tooltip="How long tracks hold at target before departing. Infinite = wait for chord release.">
           <label className="text-gray-400 w-20 shrink-0">Hold</label>
           <CheckboxControl
             label="Infinite"
@@ -378,7 +378,7 @@ export function SlideControls() {
                 updateSlideConfig({ holdDuration: parseFloat(e.target.value) })
               }
               className="flex-1 h-1.5 accent-indigo-500"
-              title={`Hold duration: ${slideConfig.holdDuration.toFixed(1)}s`}
+              data-tooltip={`Hold duration: ${slideConfig.holdDuration.toFixed(1)}s`}
             />
           )}
           {slideConfig.holdDuration !== Infinity && (
@@ -550,7 +550,7 @@ function SliderControl({
   tooltip: string;
 }) {
   return (
-    <div className="flex items-center gap-2" title={tooltip}>
+    <div className="flex items-center gap-2" data-tooltip={tooltip}>
       <label className="text-gray-400 w-20 shrink-0">{label}</label>
       <input
         type="range"
@@ -583,7 +583,7 @@ function SelectControl<T extends string>({
   tooltip: string;
 }) {
   return (
-    <div className="flex items-center gap-2" title={tooltip}>
+    <div className="flex items-center gap-2" data-tooltip={tooltip}>
       <label className="text-gray-400 w-20 shrink-0">{label}</label>
       <select
         value={value}
@@ -616,7 +616,7 @@ function RadioGroup<T extends string>({
   tooltip: string;
 }) {
   return (
-    <div className="flex items-center gap-2" title={tooltip}>
+    <div className="flex items-center gap-2" data-tooltip={tooltip}>
       <label className="text-gray-400 w-20 shrink-0">{label}</label>
       <div className="flex gap-2 flex-wrap">
         {options.map((opt) => (
@@ -663,7 +663,7 @@ function CheckboxControl({
   return (
     <label
       className="flex items-center gap-2 cursor-pointer"
-      title={tooltip}
+      data-tooltip={tooltip}
     >
       <input
         type="checkbox"
