@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 3 complete — Convergence Engine + Slide Mode verified
+**Current focus:** Phase 3 gap closure — fixing UAT issues
 
 ## Current Position
 
 Phase: 3 of 5 (Convergence Engine + Slide Mode)
-Plan: 4 of 4 in current phase (03-04 complete -- phase done)
-Status: Phase Complete
-Last activity: 2026-02-19 — Completed 03-04 (Integration + Verification)
+Plan: 5 of 6 in current phase (03-05 complete -- gap closure)
+Status: In Progress
+Last activity: 2026-02-19 — Completed 03-05 (Audio Bleed Fix)
 
-Progress: [██████████████████████████████] 60%
+Progress: [██████████████████████████████] 63%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 6min
-- Total execution time: 80min
+- Total execution time: 82min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 1. Audio Foundation | 4 | 25min | 6min |
 | 2. Chord Engine + Synth Mode | 5 | 24min | 5min |
-| 3. Convergence Engine + Slide Mode | 4 | 31min | 8min |
+| 3. Convergence Engine + Slide Mode | 5 | 33min | 7min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 6min, 3min, 5min, 17min
-- Trend: 03-04 inflated by human verification wait time
+- Last 5 plans: 6min, 3min, 5min, 17min, 2min
+- Trend: 03-05 gap closure fast (2 targeted fixes)
 
 *Updated after each plan completion*
 
@@ -48,6 +48,7 @@ Progress: [███████████████████████
 | Phase 03 P02 | 3min | 2 tasks | 3 files |
 | Phase 03 P03 | 5min | 2 tasks | 6 files |
 | Phase 03 P04 | 17min | 2 tasks | 0 files |
+| Phase 03 P05 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,9 @@ Recent decisions affecting current work:
 - 03-03: Reusable typed control components (SliderControl, SelectControl<T>, RadioGroup<T>, CheckboxControl)
 - 03-03: Mode-conditional rendering pattern: slideMode ? SlideComponent : SynthComponent
 - 03-04: Task 1 work already completed by 03-03 -- verified correct rather than re-implementing
+- 03-05: swellGain starts at 0 (not 0.1) -- engine must be explicitly activated via startScheduler
+- 03-05: 150ms fade-in duration for dynamically added tracks balances smoothness vs responsiveness
+- 03-05: pauseScheduler called after construction as belt-and-suspenders silence guarantee
 
 ### Pending Todos
 
@@ -117,5 +121,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 03-04-PLAN.md (Integration + Verification) -- Phase 3 complete
-Resume file: .planning/phases/03-convergence-engine-slide-mode/03-04-SUMMARY.md
+Stopped at: Completed 03-05-PLAN.md (Audio Bleed Fix gap closure)
+Resume file: .planning/phases/03-convergence-engine-slide-mode/03-05-SUMMARY.md
