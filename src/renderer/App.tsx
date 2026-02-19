@@ -15,6 +15,7 @@ import { EnvelopeCurve } from './components/EnvelopeCurve';
 import { VolumeControl } from './components/VolumeControl';
 import { Oscilloscope } from './components/Oscilloscope';
 import { PerTrackVolume } from './components/PerTrackVolume';
+import { SlideControls } from './components/SlideControls';
 import { StatusBar } from './components/StatusBar';
 
 /**
@@ -73,11 +74,11 @@ export default function App() {
           {slideMode ? <SlideModeUI /> : <ChordArc />}
         </section>
 
-        {/* Right column: Volume + Oscilloscope + Per-track mix */}
-        <section className="w-52 flex flex-col items-center justify-center gap-4 shrink-0">
+        {/* Right column: Volume + Oscilloscope + Per-track mix / Slide controls */}
+        <section className="w-56 flex flex-col items-center gap-4 shrink-0 overflow-hidden">
           <VolumeControl />
           <Oscilloscope />
-          <PerTrackVolume />
+          {slideMode ? <SlideControls /> : <PerTrackVolume />}
         </section>
       </main>
 
