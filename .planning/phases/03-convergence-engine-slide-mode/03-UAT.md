@@ -3,15 +3,15 @@ status: testing
 phase: 03-convergence-engine-slide-mode
 source: 03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md
 started: 2026-02-19T12:00:00Z
-updated: 2026-02-19T11:48:00Z
+updated: 2026-02-19T11:55:00Z
 ---
 
 ## Current Test
 
-number: 7
-name: Slide Configuration Controls
+number: 8
+name: Clean Mode Switching
 expected: |
-  In slide mode, the right column shows 5 collapsible control sections (Track Model, Idle Behavior, Convergence, Swell Envelope, Post-Arrival). Each section expands to show configurable parameters. Hovering over controls shows tooltip descriptions.
+  Toggle between Synth and Slide modes multiple times. No hanging notes, no audio glitches. Synth mode chord arc and slide mode track status each work correctly when active.
 awaiting: user response
 
 ## Tests
@@ -45,7 +45,9 @@ result: pass
 
 ### 7. Slide Configuration Controls
 expected: In slide mode, the right column shows 5 collapsible control sections (Track Model, Idle Behavior, Convergence, Swell Envelope, Post-Arrival). Each section expands to show configurable parameters. Hovering over controls shows tooltip descriptions.
-result: [pending]
+result: issue
+reported: "I don't see the tooltips. The expand and collapse works. The expanded windows aren't scrollable and not all controls are visible, particularly when everything is expanded"
+severity: major
 
 ### 8. Clean Mode Switching
 expected: Toggle between Synth and Slide modes multiple times. No hanging notes, no audio glitches. Synth mode chord arc and slide mode track status each work correctly when active.
@@ -55,8 +57,8 @@ result: [pending]
 
 total: 8
 passed: 5
-issues: 1
-pending: 2
+issues: 2
+pending: 1
 skipped: 0
 
 ## Gaps
@@ -76,6 +78,16 @@ skipped: 0
   reason: "User reported: in-key pops on add (which you'd expect unless new tracks fade in)"
   severity: minor
   test: 5
+  root_cause: ""
+  artifacts: []
+  missing: []
+  debug_session: ""
+
+- truth: "Slide configuration controls show tooltips on hover and all controls are visible/scrollable when sections are expanded"
+  status: failed
+  reason: "User reported: I don't see the tooltips. The expand and collapse works. The expanded windows aren't scrollable and not all controls are visible, particularly when everything is expanded"
+  severity: major
+  test: 7
   root_cause: ""
   artifacts: []
   missing: []
