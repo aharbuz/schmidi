@@ -3,15 +3,15 @@ status: testing
 phase: 03-convergence-engine-slide-mode
 source: 03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md
 started: 2026-02-19T12:00:00Z
-updated: 2026-02-19T11:47:00Z
+updated: 2026-02-19T11:48:00Z
 ---
 
 ## Current Test
 
-number: 6
-name: Anchor Voice
+number: 7
+name: Slide Configuration Controls
 expected: |
-  With anchor enabled, pressing a chord plays the clean struck chord sound alongside the sliding tracks. Both the slide convergence and the anchor chord coexist clearly.
+  In slide mode, the right column shows 5 collapsible control sections (Track Model, Idle Behavior, Convergence, Swell Envelope, Post-Arrival). Each section expands to show configurable parameters. Hovering over controls shows tooltip descriptions.
 awaiting: user response
 
 ## Tests
@@ -41,7 +41,7 @@ severity: minor
 
 ### 6. Anchor Voice
 expected: With anchor enabled, pressing a chord plays the clean struck chord sound alongside the sliding tracks. Both the slide convergence and the anchor chord coexist clearly.
-result: [pending]
+result: pass
 
 ### 7. Slide Configuration Controls
 expected: In slide mode, the right column shows 5 collapsible control sections (Track Model, Idle Behavior, Convergence, Swell Envelope, Post-Arrival). Each section expands to show configurable parameters. Hovering over controls shows tooltip descriptions.
@@ -54,9 +54,9 @@ result: [pending]
 ## Summary
 
 total: 8
-passed: 4
+passed: 5
 issues: 1
-pending: 3
+pending: 2
 skipped: 0
 
 ## Gaps
