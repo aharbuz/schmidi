@@ -14,6 +14,7 @@ import { CHORD_KEYS } from '../music/musicTypes';
  */
 export function useChordKeyboard() {
   const audioReady = useSynthStore((s) => s.audioReady);
+  const slideMode = useSynthStore((s) => s.slideMode);
   const triggerChordByDegree = useSynthStore((s) => s.triggerChordByDegree);
   const releaseChordByDegree = useSynthStore((s) => s.releaseChordByDegree);
 
@@ -50,7 +51,8 @@ export function useChordKeyboard() {
   );
 
   useEffect(() => {
-    if (!audioReady) return;
+    // Inactive when audio not ready or when in slide mode
+    if (!audioReady || slideMode) return;
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -60,5 +62,5 @@ export function useChordKeyboard() {
       window.removeEventListener('keyup', handleKeyUp);
       heldKeysRef.current.clear();
     };
-  }, [audioReady, handleKeyDown, handleKeyUp]);
+  }, [audioReady, slideMode, handleKeyDown, handleKeyUp]);
 }
