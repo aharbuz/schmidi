@@ -94,7 +94,7 @@ export function ADSRControls() {
         <select
           data-testid="preset-selector"
           value={currentPreset}
-          onChange={handlePresetChange}
+          onChange={(e) => { handlePresetChange(e); e.target.blur(); }}
           className="flex-1 bg-[#12121a] border border-gray-700/50 rounded-md
             text-sm text-gray-300 px-3 py-1.5
             focus:outline-none focus:ring-1 focus:ring-cyan-500/40 focus:border-cyan-500/40

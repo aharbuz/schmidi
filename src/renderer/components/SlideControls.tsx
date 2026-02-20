@@ -108,7 +108,7 @@ export function SlideControls() {
               <label className="text-gray-400 w-20 shrink-0">Snap Key</label>
               <select
                 value={snapScaleKey ?? ''}
-                onChange={(e) => setSnapScale(e.target.value || null, snapScaleMode)}
+                onChange={(e) => { setSnapScale(e.target.value || null, snapScaleMode); e.target.blur(); }}
                 className="flex-1 bg-gray-900 border border-gray-700/50 rounded px-2 py-1 text-gray-300
                   focus:outline-none focus:ring-1 focus:ring-indigo-500/40 cursor-pointer"
               >
@@ -122,7 +122,7 @@ export function SlideControls() {
               <label className="text-gray-400 w-20 shrink-0">Snap Mode</label>
               <select
                 value={snapScaleMode ?? ''}
-                onChange={(e) => setSnapScale(snapScaleKey, e.target.value || null)}
+                onChange={(e) => { setSnapScale(snapScaleKey, e.target.value || null); e.target.blur(); }}
                 className="flex-1 bg-gray-900 border border-gray-700/50 rounded px-2 py-1 text-gray-300
                   focus:outline-none focus:ring-1 focus:ring-indigo-500/40 cursor-pointer"
               >
@@ -678,7 +678,7 @@ function SelectControl<T extends string>({
       <label className="text-gray-400 w-20 shrink-0">{label}</label>
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value as T)}
+        onChange={(e) => { onChange(e.target.value as T); e.target.blur(); }}
         className="flex-1 bg-gray-900 border border-gray-700/50 rounded px-2 py-1 text-gray-300
           focus:outline-none focus:ring-1 focus:ring-indigo-500/40 cursor-pointer"
       >

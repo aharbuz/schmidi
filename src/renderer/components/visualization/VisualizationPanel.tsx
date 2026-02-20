@@ -97,6 +97,8 @@ export function VisualizationPanel() {
               step={0.01}
               value={presetIntensity}
               onChange={(e) => setPresetIntensity(parseFloat(e.target.value))}
+              onMouseUp={(e) => (e.target as HTMLInputElement).blur()}
+              onTouchEnd={(e) => (e.target as HTMLInputElement).blur()}
               className="w-20 h-1.5 accent-indigo-500"
               title={`Intensity: ${Math.round(presetIntensity * 100)}%`}
             />
