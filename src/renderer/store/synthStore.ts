@@ -17,6 +17,7 @@ import {
   getPresetIdleMode,
   getPresetPostArrivalMode,
 } from '../audio/presets';
+import { buildScaleFrequencyTable } from '../music/scaleFrequencies';
 
 /** Audio status information for UI display */
 interface AudioStatus {
@@ -336,9 +337,19 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   },
 
   updateSlideConfig: (partial) => {
-    const { slideConfig, activePreset, presetIntensity } = get();
+    const { slideConfig, activePreset, presetIntensity, snapScaleKey, snapScaleMode, selectedKey, selectedMode } = get();
     const newConfig = { ...slideConfig, ...partial };
     slideEngineRef?.updateConfig(partial);
+
+    // When switching to scale-snapped, build and send scale frequency table
+    if (partial.pitchMovement === 'scale-snapped') {
+      const effectiveKey = snapScaleKey ?? selectedKey;
+      const effectiveMode = snapScaleMode ?? selectedMode;
+      const freqs = buildScaleFrequencyTable(effectiveKey, effectiveMode);
+      slideEngineRef?.setScaleFrequencies(freqs);
+    } else if (partial.pitchMovement === 'continuous') {
+      slideEngineRef?.setScaleFrequencies([]);
+    }
 
     // Detect preset divergence: if a changed key differs from current preset, switch to custom
     const updates: Partial<SynthState> = { slideConfig: newConfig };
@@ -423,6 +434,7 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
       }
     }
 
+    slideEngineRef?.setIdleMode(mode);
     set(updates);
   },
 
@@ -436,6 +448,7 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
         : { autoCycle: true, holdDuration: slideConfig.holdDuration === Infinity ? 2.0 : slideConfig.holdDuration };
 
     slideEngineRef?.updateConfig(engineConfig);
+    slideEngineRef?.setPostArrivalMode(mode);
 
     // Check if this diverges from current preset's default
     const updates: Partial<SynthState> = {
@@ -453,6 +466,11 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   },
 
   setSnapScale: (key, mode) => {
+    const { selectedKey, selectedMode } = get();
+    const effectiveKey = key ?? selectedKey;
+    const effectiveMode = mode ?? selectedMode;
+    const freqs = buildScaleFrequencyTable(effectiveKey, effectiveMode);
+    slideEngineRef?.setScaleFrequencies(freqs);
     set({ snapScaleKey: key, snapScaleMode: mode });
   },
 }));
