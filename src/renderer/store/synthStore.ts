@@ -9,6 +9,14 @@ import { generateDiatonicChords } from '../music/chordEngine';
 import { ENVELOPE_PRESETS } from '../audio/envelopePresets';
 import { setMasterVolume } from '../audio/masterBus';
 import { DEFAULT_SLIDE_CONFIG, type SlideConfig, type SlideTrackState } from '../audio/SlideTrack';
+import {
+  type PresetName,
+  type IdleMode,
+  type PostArrivalMode,
+  getPresetConfig,
+  getPresetIdleMode,
+  getPresetPostArrivalMode,
+} from '../audio/presets';
 
 /** Audio status information for UI display */
 interface AudioStatus {
@@ -46,6 +54,14 @@ interface SynthState {
   vizMode: 'radial' | 'waveform';
   fullViz: boolean;
 
+  // Personality state (Phase 5)
+  activePreset: PresetName;
+  presetIntensity: number;
+  idleMode: IdleMode;
+  postArrivalMode: PostArrivalMode;
+  snapScaleKey: string | null;
+  snapScaleMode: string | null;
+
   // Actions (Phase 1)
   setAudioReady: (ready: boolean) => void;
   setWaveform: (type: WaveformType) => void;
@@ -76,6 +92,13 @@ interface SynthState {
   // Actions (Phase 4 - Visualization)
   setVizMode: (mode: 'radial' | 'waveform') => void;
   toggleFullViz: () => void;
+
+  // Actions (Phase 5 - Personality)
+  applyPreset: (name: PresetName) => void;
+  setPresetIntensity: (intensity: number) => void;
+  setIdleMode: (mode: IdleMode) => void;
+  setPostArrivalMode: (mode: PostArrivalMode) => void;
+  setSnapScale: (key: string | null, mode: string | null) => void;
 }
 
 // Module-level VoiceManager reference -- NOT reactive state
@@ -159,6 +182,14 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   // Initial state (Phase 4 - Visualization)
   vizMode: 'radial',
   fullViz: false,
+
+  // Initial state (Phase 5 - Personality)
+  activePreset: 'bloom' as PresetName,
+  presetIntensity: 0.5,
+  idleMode: 'quiet-sliding' as IdleMode,
+  postArrivalMode: 'hold' as PostArrivalMode,
+  snapScaleKey: null,
+  snapScaleMode: null,
 
   // Actions (Phase 1)
   setAudioReady: (ready) => set({ audioReady: ready }),
@@ -305,10 +336,24 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   },
 
   updateSlideConfig: (partial) => {
-    const { slideConfig } = get();
+    const { slideConfig, activePreset, presetIntensity } = get();
     const newConfig = { ...slideConfig, ...partial };
     slideEngineRef?.updateConfig(partial);
-    set({ slideConfig: newConfig });
+
+    // Detect preset divergence: if a changed key differs from current preset, switch to custom
+    const updates: Partial<SynthState> = { slideConfig: newConfig };
+    if (activePreset !== 'custom') {
+      const presetConfig = getPresetConfig(activePreset, presetIntensity);
+      const diverged = Object.keys(partial).some((key) => {
+        const k = key as keyof SlideConfig;
+        return k in presetConfig && partial[k] !== presetConfig[k];
+      });
+      if (diverged) {
+        updates.activePreset = 'custom';
+      }
+    }
+
+    set(updates);
   },
 
   setSlideTrackCount: (n) => {
@@ -322,5 +367,92 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   toggleFullViz: () => {
     const { fullViz } = get();
     set({ fullViz: !fullViz });
+  },
+
+  // Actions (Phase 5 - Personality)
+  applyPreset: (name) => {
+    const { presetIntensity } = get();
+    const presetConfig = getPresetConfig(name, presetIntensity);
+    const idleMode = getPresetIdleMode(name);
+    const postArrivalMode = getPresetPostArrivalMode(name);
+
+    if (name === 'custom') {
+      // Custom = use current values, just update the label and mode defaults
+      set({ activePreset: name, idleMode, postArrivalMode });
+      return;
+    }
+
+    // Apply preset config to engine and store
+    slideEngineRef?.updateConfig(presetConfig);
+    const { slideConfig } = get();
+    set({
+      activePreset: name,
+      idleMode,
+      postArrivalMode,
+      slideConfig: { ...slideConfig, ...presetConfig },
+    });
+  },
+
+  setPresetIntensity: (intensity) => {
+    const clamped = Math.max(0, Math.min(1, intensity));
+    const { activePreset } = get();
+
+    if (activePreset !== 'custom') {
+      // Recompute preset config at new intensity and apply
+      const presetConfig = getPresetConfig(activePreset, clamped);
+      slideEngineRef?.updateConfig(presetConfig);
+      const { slideConfig } = get();
+      set({
+        presetIntensity: clamped,
+        slideConfig: { ...slideConfig, ...presetConfig },
+      });
+    } else {
+      set({ presetIntensity: clamped });
+    }
+  },
+
+  setIdleMode: (mode) => {
+    const { activePreset } = get();
+
+    // Check if this diverges from current preset's default idle mode
+    const updates: Partial<SynthState> = { idleMode: mode };
+    if (activePreset !== 'custom') {
+      const presetDefault = getPresetIdleMode(activePreset);
+      if (mode !== presetDefault) {
+        updates.activePreset = 'custom';
+      }
+    }
+
+    set(updates);
+  },
+
+  setPostArrivalMode: (mode) => {
+    const { activePreset, slideConfig } = get();
+
+    // Map post-arrival mode to engine config
+    const engineConfig: Partial<SlideConfig> =
+      mode === 'hold'
+        ? { autoCycle: false, holdDuration: Infinity }
+        : { autoCycle: true, holdDuration: slideConfig.holdDuration === Infinity ? 2.0 : slideConfig.holdDuration };
+
+    slideEngineRef?.updateConfig(engineConfig);
+
+    // Check if this diverges from current preset's default
+    const updates: Partial<SynthState> = {
+      postArrivalMode: mode,
+      slideConfig: { ...slideConfig, ...engineConfig },
+    };
+    if (activePreset !== 'custom') {
+      const presetDefault = getPresetPostArrivalMode(activePreset);
+      if (mode !== presetDefault) {
+        updates.activePreset = 'custom';
+      }
+    }
+
+    set(updates);
+  },
+
+  setSnapScale: (key, mode) => {
+    set({ snapScaleKey: key, snapScaleMode: mode });
   },
 }));
