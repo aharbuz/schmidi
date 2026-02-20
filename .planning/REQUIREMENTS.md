@@ -34,9 +34,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Visualization
 
-- [ ] **VIZ-01**: Radial convergence view: tracks visualized as orbs/lines spiraling toward center as they converge on chord notes (60fps)
+- [x] **VIZ-01**: Radial convergence view: tracks visualized as orbs/lines spiraling toward center as they converge on chord notes (60fps)
 - [x] **VIZ-02**: Waveform trace view: colored waveform traces morph and align as pitches converge
-- [ ] **VIZ-03**: User can switch between radial convergence and waveform trace visualization modes
+- [x] **VIZ-03**: User can switch between radial convergence and waveform trace visualization modes
 - [ ] **VIZ-04**: Visualization is the primary instrument UI, not a secondary display
 
 ### Controls
@@ -95,9 +95,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SLIDE-03 | Phase 3 | Complete |
 | SLIDE-04 | Phase 3 | Complete |
 | SLIDE-05 | Phase 3 | Complete |
-| VIZ-01 | Phase 4 | Pending |
+| VIZ-01 | Phase 4 | Complete |
 | VIZ-02 | Phase 4 | Complete |
-| VIZ-03 | Phase 4 | Pending |
+| VIZ-03 | Phase 4 | Complete |
 | VIZ-04 | Phase 4 | Pending |
 | SLIDE-06 | Phase 5 | Pending |
 | SLIDE-07 | Phase 5 | Pending |

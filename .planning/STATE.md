@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 4 — Visualization (waveform trace view complete)
+**Current focus:** Phase 4 — Visualization (radial view + waveform trace complete, layout integration next)
 
 ## Current Position
 
 Phase: 4 of 5 (Visualization)
-Plan: 2 of 3 in current phase (04-02 complete)
+Plan: 2 of 3 in current phase (04-01 + 04-02 complete)
 Status: In Progress
-Last activity: 2026-02-20 — Completed 04-02 (Waveform Trace View)
+Last activity: 2026-02-20 — Completed 04-01 (Radial Convergence View)
 
 Progress: [██████████████████████████████] 66%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
-- Average duration: 6min
-- Total execution time: 85min
+- Total plans completed: 17
+- Average duration: 5min
+- Total execution time: 93min
 
 **By Phase:**
 
@@ -50,6 +50,7 @@ Progress: [███████████████████████
 | Phase 03 P04 | 17min | 2 tasks | 0 files |
 | Phase 03 P05 | 2min | 2 tasks | 3 files |
 | Phase 03 P06 | 3min | 2 tasks | 3 files |
+| Phase 04 P01 | 5min | 2 tasks | 4 files |
 | Phase 04 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
@@ -112,6 +113,11 @@ Recent decisions affecting current work:
 - 03-05: pauseScheduler called after construction as belt-and-suspenders silence guarantee
 - 03-06: CSS data-tooltip with ::after pseudo-element instead of custom React tooltip component -- zero JS overhead
 - 03-06: scrollbar-thin opt-in class preserves global scrollbar hiding while allowing specific containers to scroll
+- 04-01: Pre-rendered glow sprites (body + halo) per-hue, drawImage per frame instead of createRadialGradient
+- 04-01: Two-pass rendering: source-over for orb bodies, globalCompositeOperation 'lighter' for glow halos
+- 04-01: Bloom gradient per-frame only during 400ms flash events -- acceptable per research
+- 04-01: Circular mean (atan2) for hue blending handles 360-degree wraparound correctly
+- 04-01: RadialView uses own rAF loop reading Zustand, separate from useAnimationLoop
 - [Phase 04]: AnalyserNode between osc and swellGain for clean per-track waveform before gain processing
 - [Phase 04]: WaveformBuffer pre-allocates all typed arrays to avoid GC pressure in rAF render loop
 - [Phase 04]: Convergence flash uses delta-time phase animation (300ms flash + 200ms fade) synced to rAF
@@ -128,5 +134,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 04-02-PLAN.md (Waveform Trace View)
-Resume file: .planning/phases/04-visualization/04-02-SUMMARY.md
+Stopped at: Completed 04-01-PLAN.md (Radial Convergence View)
+Resume file: .planning/phases/04-visualization/04-01-SUMMARY.md
