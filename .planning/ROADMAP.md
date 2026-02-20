@@ -81,7 +81,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User switches to waveform trace view and sees colored waveforms morphing and aligning as pitches converge
   3. User can switch between radial and waveform views without audio interruption
   4. The visualization is the dominant element of the UI — chord controls and settings are secondary; the canvas fills the instrument face
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 04-01-PLAN.md -- Visualization color system + canvas setup hook + radial convergence view with orbs and bloom
+- [ ] 04-02-PLAN.md -- Per-track AnalyserNodes in SlideTrack + waveform buffer + waveform trace view
+- [ ] 04-03-PLAN.md -- Layout integration: VisualizationPanel, view toggle, full-viz mode, app restyle, 16:9 window
 
 ### Phase 5: Instrument Personality
 **Goal**: The configurability that makes Schmidi expressive — slide character, convergence behavior, pre-press mode, and scale snapping let the player shape how the instrument feels without changing what it fundamentally is
@@ -97,12 +100,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Audio Foundation | 1/5 | In Progress | - |
 | 2. Chord Engine + Synth Mode | 5/5 | Complete | 2026-02-18 |
 | 3. Convergence Engine + Slide Mode | 4/6 | Gap Closure | - |
-| 4. Visualization | 0/TBD | Not started | - |
+| 4. Visualization | 0/3 | Planned | - |
 | 5. Instrument Personality | 0/TBD | Not started | - |
