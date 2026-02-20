@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 5 of 5 (Instrument Personality)
-Plan: 1 of 3 in current phase (05-01 complete)
+Plan: 2 of 3 in current phase (05-02 complete)
 Status: In Progress
-Last activity: 2026-02-20 — Completed 05-01 (Preset System + Scale Utilities)
+Last activity: 2026-02-20 — Completed 05-02 (Engine Behaviors Integration)
 
-Progress: [██████████████████████████████████████] 86%
+Progress: [█████████████████████████████████████████] 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 6min
-- Total execution time: 109min
+- Total execution time: 115min
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [███████████████████████
 | 2. Chord Engine + Synth Mode | 5 | 24min | 5min |
 | 3. Convergence Engine + Slide Mode | 6 | 36min | 6min |
 | 4. Visualization | 3 | 10min | 3min |
-| 5. Instrument Personality | 1 | 14min | 14min |
+| 5. Instrument Personality | 2 | 20min | 10min |
 
 **Recent Trend:**
-- Last 5 plans: 2min, 3min, 2min, 3min, 14min
-- Trend: Phase 5 data-layer plan longer due to preset/store complexity
+- Last 5 plans: 3min, 2min, 3min, 14min, 6min
+- Trend: Phase 5 engine integration plan back to normal velocity
 
 *Updated after each plan completion*
 
@@ -56,6 +56,7 @@ Progress: [███████████████████████
 | Phase 04 P02 | 3min | 2 tasks | 4 files |
 | Phase 04 P03 | 2min | 3 tasks | 8 files |
 | Phase 05 P01 | 14min | 2 tasks | 4 files |
+| Phase 05 P02 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,10 @@ Recent decisions affecting current work:
 - 05-01: Bloom preset uses inward-focus cinematic character (loosely-correlated, ease-in-out convergence)
 - 05-01: Custom preset auto-activation in updateSlideConfig via divergence detection against current preset values
 - 05-01: PostArrivalMode 'hold' maps to autoCycle:false/holdDuration:Infinity; 'cycle' maps to autoCycle:true with configurable holdDuration
+- 05-02: DroneLayer uses 3 detuned sine oscillators ([0, +7, -5] cents) at root freq for ambient drone idle mode
+- 05-02: Cycle reconvergence timers stored in Map<SlideTrack, Timeout>, cleared on chord release + new chord press
+- 05-02: Staircase convergence via useStaircase boolean param on scheduleFrequencyRamp (SlideTrack decoupled from config)
+- 05-02: Legacy autoCycle boolean preserved for backward compatibility when postArrivalMode is hold
 
 ### Pending Todos
 
@@ -146,5 +151,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 05-01-PLAN.md (Preset System + Scale Utilities)
-Resume file: .planning/phases/05-instrument-personality/05-01-SUMMARY.md
+Stopped at: Completed 05-02-PLAN.md (Engine Behaviors Integration)
+Resume file: .planning/phases/05-instrument-personality/05-02-SUMMARY.md
