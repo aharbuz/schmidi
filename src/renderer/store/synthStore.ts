@@ -42,6 +42,10 @@ interface SynthState {
   activeSlideDegree: number | null;
   slideTrackStates: SlideTrackState[];
 
+  // Visualization state (Phase 4)
+  vizMode: 'radial' | 'waveform';
+  fullViz: boolean;
+
   // Actions (Phase 1)
   setAudioReady: (ready: boolean) => void;
   setWaveform: (type: WaveformType) => void;
@@ -68,6 +72,10 @@ interface SynthState {
   updateSlideConfig: (partial: Partial<SlideConfig>) => void;
   setSlideTrackCount: (n: number) => void;
   updateSlideTrackStates: (states: SlideTrackState[]) => void;
+
+  // Actions (Phase 4 - Visualization)
+  setVizMode: (mode: 'radial' | 'waveform') => void;
+  toggleFullViz: () => void;
 }
 
 // Module-level VoiceManager reference -- NOT reactive state
@@ -147,6 +155,10 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   slideConfig: { ...DEFAULT_SLIDE_CONFIG },
   activeSlideDegree: null,
   slideTrackStates: [],
+
+  // Initial state (Phase 4 - Visualization)
+  vizMode: 'radial',
+  fullViz: false,
 
   // Actions (Phase 1)
   setAudioReady: (ready) => set({ audioReady: ready }),
@@ -304,4 +316,11 @@ export const useSynthStore = create<SynthState>()((set, get) => ({
   },
 
   updateSlideTrackStates: (states) => set({ slideTrackStates: states }),
+
+  // Actions (Phase 4 - Visualization)
+  setVizMode: (mode) => set({ vizMode: mode }),
+  toggleFullViz: () => {
+    const { fullViz } = get();
+    set({ fullViz: !fullViz });
+  },
 }));

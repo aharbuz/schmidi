@@ -151,6 +151,7 @@ export interface SlideTrackState {
  */
 export class SlideTrack {
   private osc: OscillatorNode;
+  private analyser: AnalyserNode;
   private swellGain: GainNode;
   private trackGain: GainNode;
   private ctx: AudioContext;
@@ -193,6 +194,11 @@ export class SlideTrack {
     this.osc.type = waveformType;
     this.osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
 
+    // Per-track analyser: taps raw oscillator output for waveform visualization
+    this.analyser = ctx.createAnalyser();
+    this.analyser.fftSize = 256; // 128 samples, enough for visual
+    this.analyser.smoothingTimeConstant = 0.3; // slight smoothing for visual coherence
+
     // Swell gain: proximity-driven 0-1 (starts at floor volume)
     this.swellGain = ctx.createGain();
     this.swellGain.gain.setValueAtTime(0, ctx.currentTime);
@@ -201,8 +207,9 @@ export class SlideTrack {
     this.trackGain = ctx.createGain();
     this.trackGain.gain.setValueAtTime(0.7, ctx.currentTime);
 
-    // Connect: osc -> swellGain -> trackGain -> masterGain
-    this.osc.connect(this.swellGain);
+    // Connect: osc -> analyser -> swellGain -> trackGain -> masterGain
+    this.osc.connect(this.analyser);
+    this.analyser.connect(this.swellGain);
     this.swellGain.connect(this.trackGain);
     this.trackGain.connect(masterGain);
 
@@ -406,6 +413,14 @@ export class SlideTrack {
   }
 
   /**
+   * Get the per-track AnalyserNode for waveform visualization.
+   * The analyser taps the raw oscillator output before gain processing.
+   */
+  getAnalyser(): AnalyserNode {
+    return this.analyser;
+  }
+
+  /**
    * Stop oscillator, disconnect all nodes. Matches Voice.dispose() pattern.
    */
   dispose(): void {
@@ -422,6 +437,7 @@ export class SlideTrack {
       // Already stopped
     }
     this.osc.disconnect();
+    this.analyser.disconnect();
     this.swellGain.disconnect();
     this.trackGain.disconnect();
   }

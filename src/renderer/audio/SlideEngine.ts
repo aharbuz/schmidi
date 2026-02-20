@@ -1046,6 +1046,11 @@ export class SlideEngine {
     return { ...this.config };
   }
 
+  /** Get persistent tracks (for waveform view analyser access) */
+  getTracks(): SlideTrack[] {
+    return this.tracks;
+  }
+
   /** Set waveform on all tracks */
   setWaveform(type: WaveformType): void {
     for (const track of this.tracks) {
