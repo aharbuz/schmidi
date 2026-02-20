@@ -276,7 +276,8 @@ export function RadialView() {
         const sprite = spritesRef.current[i];
         if (!sprite) continue;
 
-        const drawSize = v.size * 2; // Scale sprite to TrackVizData size
+        const isSilent = trackStates[i]?.silentMode === true;
+        const drawSize = (isSilent ? v.size * 0.6 : v.size) * 2; // 60% radius in silent mode
         ctx.globalAlpha = v.alpha;
         ctx.drawImage(
           sprite.body,
@@ -295,10 +296,11 @@ export function RadialView() {
         const sprite = spritesRef.current[i];
         if (!sprite) continue;
 
+        const isSilent = trackStates[i]?.silentMode === true;
         const glowSize = v.glowRadius * 3; // Larger than body
         if (glowSize < 1) continue; // Skip if too small
 
-        ctx.globalAlpha = v.alpha * 0.4;
+        ctx.globalAlpha = v.alpha * (isSilent ? 0.12 : 0.4); // 30% of normal halo opacity in silent mode
         ctx.drawImage(
           sprite.halo,
           v.x - glowSize / 2,

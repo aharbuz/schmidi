@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useSynthStore } from '../store/synthStore';
+import type { IdleMode, PostArrivalMode } from '../audio/presets';
+import { CIRCLE_OF_FIFTHS, MODES } from '../music/musicTypes';
 import type {
   TrackModel,
   IdleMovementMode,
@@ -29,10 +31,18 @@ import type {
 export function SlideControls() {
   const slideConfig = useSynthStore((s) => s.slideConfig);
   const updateSlideConfig = useSynthStore((s) => s.updateSlideConfig);
+  const idleMode = useSynthStore((s) => s.idleMode);
+  const setIdleMode = useSynthStore((s) => s.setIdleMode);
+  const postArrivalMode = useSynthStore((s) => s.postArrivalMode);
+  const setPostArrivalMode = useSynthStore((s) => s.setPostArrivalMode);
+  const snapScaleKey = useSynthStore((s) => s.snapScaleKey);
+  const snapScaleMode = useSynthStore((s) => s.snapScaleMode);
+  const setSnapScale = useSynthStore((s) => s.setSnapScale);
 
   // Collapsible section state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    trackModel: true,
+    personality: true,
+    trackModel: false,
     idle: false,
     convergence: false,
     swell: false,
@@ -45,6 +55,87 @@ export function SlideControls() {
 
   return (
     <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-full pr-1 text-xs">
+      {/* Section 0: Personality */}
+      <CollapsibleSection
+        title="Personality"
+        isOpen={openSections.personality}
+        onToggle={() => toggleSection('personality')}
+      >
+        <RadioGroup<IdleMode>
+          label="Idle Mode"
+          value={idleMode}
+          options={[
+            { value: 'silent', label: 'Silent' },
+            { value: 'quiet-sliding', label: 'Quiet Sliding' },
+            { value: 'ambient-drone', label: 'Ambient Drone' },
+          ]}
+          onChange={(v) => setIdleMode(v)}
+          tooltip="Silent: tracks move visually but produce no sound. Quiet Sliding: tracks drift at low volume before chord press. Ambient Drone: detuned root+fifth drone fades in/out with chords."
+        />
+        <RadioGroup<PostArrivalMode>
+          label="Post-Arrival"
+          value={postArrivalMode}
+          options={[
+            { value: 'hold', label: 'Hold' },
+            { value: 'cycle', label: 'Cycle' },
+          ]}
+          onChange={(v) => setPostArrivalMode(v)}
+          tooltip="Hold: tracks stay on chord notes until released. Cycle: tracks arrive, hold briefly, depart, and reconverge (breathing)."
+        />
+        {postArrivalMode === 'cycle' && (
+          <SliderControl
+            label="Touch Duration"
+            value={slideConfig.holdDuration === Infinity ? 2.0 : slideConfig.holdDuration}
+            min={0.2}
+            max={5.0}
+            step={0.1}
+            format={(v) => `${v.toFixed(1)}s`}
+            onChange={(v) => updateSlideConfig({ holdDuration: v })}
+            tooltip="How long tracks hold at chord notes before departing (cycle mode)."
+          />
+        )}
+        <CheckboxControl
+          label="Scale-Snapped Glissando"
+          checked={slideConfig.pitchMovement === 'scale-snapped'}
+          onChange={(checked) =>
+            updateSlideConfig({ pitchMovement: checked ? 'scale-snapped' : 'continuous' })
+          }
+          tooltip="Pitches gravitate toward scale degrees instead of continuous glide."
+        />
+        {slideConfig.pitchMovement === 'scale-snapped' && (
+          <div className="flex flex-col gap-2 pl-5">
+            <div className="flex items-center gap-2" data-tooltip="Scale for pitch snapping (defaults to active key/mode)">
+              <label className="text-gray-400 w-20 shrink-0">Snap Key</label>
+              <select
+                value={snapScaleKey ?? ''}
+                onChange={(e) => setSnapScale(e.target.value || null, snapScaleMode)}
+                className="flex-1 bg-gray-900 border border-gray-700/50 rounded px-2 py-1 text-gray-300
+                  focus:outline-none focus:ring-1 focus:ring-indigo-500/40 cursor-pointer"
+              >
+                <option value="">Same as active key</option>
+                {CIRCLE_OF_FIFTHS.map((k) => (
+                  <option key={k} value={k}>{k}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2" data-tooltip="Scale mode for pitch snapping (defaults to active mode)">
+              <label className="text-gray-400 w-20 shrink-0">Snap Mode</label>
+              <select
+                value={snapScaleMode ?? ''}
+                onChange={(e) => setSnapScale(snapScaleKey, e.target.value || null)}
+                className="flex-1 bg-gray-900 border border-gray-700/50 rounded px-2 py-1 text-gray-300
+                  focus:outline-none focus:ring-1 focus:ring-indigo-500/40 cursor-pointer"
+              >
+                <option value="">Same as active mode</option>
+                {MODES.map((m) => (
+                  <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+      </CollapsibleSection>
+
       {/* Section 1: Track Model */}
       <CollapsibleSection
         title="Track Model"

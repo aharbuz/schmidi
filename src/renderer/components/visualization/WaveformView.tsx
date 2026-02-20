@@ -186,7 +186,9 @@ export function WaveformView() {
         }
 
         const hue = TRACK_HUES[i % TRACK_HUES.length];
-        ctx.strokeStyle = `hsla(${hue}, ${viz.saturation}%, ${lineBrightness}%, ${lineAlpha})`;
+        const isSilent = trackState.silentMode === true;
+        const traceAlpha = isSilent ? lineAlpha * 0.3 : lineAlpha; // 30% opacity in silent mode
+        ctx.strokeStyle = `hsla(${hue}, ${viz.saturation}%, ${lineBrightness}%, ${traceAlpha})`;
         ctx.lineWidth = lineWidth;
         ctx.beginPath();
 

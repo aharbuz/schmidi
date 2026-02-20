@@ -4,6 +4,7 @@ import { WaveformView } from './WaveformView';
 import { ViewToggle } from './ViewToggle';
 import { CHORD_KEYS } from '../../music/musicTypes';
 import { TRACK_HUES } from './vizColors';
+import { PRESET_NAMES } from '../../audio/presets';
 
 /** Roman numeral labels for 7 degrees */
 const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
@@ -28,6 +29,10 @@ export function VisualizationPanel() {
   const activeSlideDegree = useSynthStore((s) => s.activeSlideDegree);
   const triggerSlideChord = useSynthStore((s) => s.triggerSlideChord);
   const releaseSlideChord = useSynthStore((s) => s.releaseSlideChord);
+  const activePreset = useSynthStore((s) => s.activePreset);
+  const presetIntensity = useSynthStore((s) => s.presetIntensity);
+  const applyPreset = useSynthStore((s) => s.applyPreset);
+  const setPresetIntensity = useSynthStore((s) => s.setPresetIntensity);
 
   return (
     <div className="relative w-full h-full">
@@ -60,6 +65,44 @@ export function VisualizationPanel() {
           </svg>
         )}
       </button>
+
+      {/* Preset overlay -- top center, only in slide mode */}
+      {slideMode && (
+        <div
+          className={`absolute top-3 left-1/2 -translate-x-1/2 z-10
+            bg-black/30 backdrop-blur-sm border border-white/5 rounded-full
+            flex items-center gap-2 px-3 py-1.5
+            transition-opacity ${fullViz ? 'opacity-30 hover:opacity-80' : 'opacity-80 hover:opacity-100'}`}
+        >
+          {PRESET_NAMES.map((name) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => applyPreset(name)}
+              className={`px-3 py-1 rounded-full text-xs transition-all
+                ${
+                  activePreset === name
+                    ? 'bg-indigo-600/40 text-white border border-indigo-400/30 glow-text'
+                    : 'text-gray-500 hover:text-gray-300 border border-transparent'
+                }`}
+            >
+              {name.charAt(0).toUpperCase() + name.slice(1)}
+            </button>
+          ))}
+          {activePreset !== 'custom' && (
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={presetIntensity}
+              onChange={(e) => setPresetIntensity(parseFloat(e.target.value))}
+              className="w-20 h-1.5 accent-indigo-500"
+              title={`Intensity: ${Math.round(presetIntensity * 100)}%`}
+            />
+          )}
+        </div>
+      )}
 
       {/* Chord overlay buttons -- bottom center, only in slide mode */}
       {slideMode && (
@@ -110,7 +153,7 @@ export function VisualizationPanel() {
 
       {/* Active chord indicator text */}
       {slideMode && activeSlideDegree !== null && (
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
           <span className="text-lg font-bold text-white/60 tracking-wider drop-shadow-lg">
             {chordGrid[activeSlideDegree - 1]?.chordSymbol ?? ROMAN_NUMERALS[activeSlideDegree - 1]}
           </span>
