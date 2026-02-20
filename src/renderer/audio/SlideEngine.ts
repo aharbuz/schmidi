@@ -5,6 +5,79 @@ import {
   type SlideConfig,
   type SlideTrackState,
 } from './SlideTrack';
+import type { IdleMode, PostArrivalMode } from './presets';
+import { magneticSnap } from '../music/scaleFrequencies';
+
+/**
+ * DroneLayer: 2-3 detuned oscillators on root + fifth for ambient drone idle mode.
+ * Fades out on chord press, fades back in on release.
+ */
+class DroneLayer {
+  private ctx: AudioContext;
+  private droneGain: GainNode;
+  private oscs: OscillatorNode[];
+
+  constructor(ctx: AudioContext, masterGain: GainNode, rootFreq: number) {
+    this.ctx = ctx;
+
+    // Drone gain node -- starts silent, fades in on request
+    this.droneGain = ctx.createGain();
+    this.droneGain.gain.setValueAtTime(0, ctx.currentTime);
+    this.droneGain.connect(masterGain);
+
+    // 3 oscillators: root, root+7 cents, root-5 cents (detuned unison for richness)
+    const detunes = [0, 7, -5];
+    this.oscs = detunes.map((det) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(rootFreq, ctx.currentTime);
+      osc.detune.setValueAtTime(det, ctx.currentTime);
+      osc.connect(this.droneGain);
+      osc.start();
+      return osc;
+    });
+  }
+
+  /** Fade in drone gain with anti-click ramp */
+  fadeIn(targetVolume: number, duration: number = 0.5): void {
+    const now = this.ctx.currentTime;
+    const gain = this.droneGain.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(gain.value, now);
+    gain.linearRampToValueAtTime(Math.max(0, Math.min(1, targetVolume)), now + duration);
+  }
+
+  /** Fade out drone gain with anti-click ramp */
+  fadeOut(duration: number = 0.3): void {
+    const now = this.ctx.currentTime;
+    const gain = this.droneGain.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(gain.value, now);
+    gain.linearRampToValueAtTime(0, now + duration);
+  }
+
+  /** Update root frequency on all oscillators (for key changes) */
+  setRootFreq(freq: number): void {
+    const now = this.ctx.currentTime;
+    for (const osc of this.oscs) {
+      osc.frequency.cancelScheduledValues(now);
+      osc.frequency.setValueAtTime(freq, now);
+    }
+  }
+
+  /** Stop all oscillators, disconnect all nodes */
+  dispose(): void {
+    for (const osc of this.oscs) {
+      try {
+        osc.stop();
+      } catch {
+        // Already stopped
+      }
+      osc.disconnect();
+    }
+    this.droneGain.disconnect();
+  }
+}
 
 /**
  * SlideEngine: N-track slide engine managing all slide mode audio behavior.
@@ -35,6 +108,13 @@ export class SlideEngine {
   private activeDegree: number | null = null;
   private activeChordFreqs: number[] | null = null;
   private isRunning = false;
+
+  // Phase 5: Personality state
+  private idleMode: IdleMode = 'quiet-sliding';
+  private postArrivalMode: PostArrivalMode = 'hold';
+  private scaleFreqs: number[] = [];
+  private droneLayer: DroneLayer | null = null;
+  private cycleTimers: Map<SlideTrack, ReturnType<typeof setTimeout>> = new Map();
 
   // Root frequency for starting position (C4 default)
   private rootFreq = 261.63;
@@ -91,6 +171,74 @@ export class SlideEngine {
     for (const track of this.spawnedTracks) {
       track.cancelAllRamps();
       track.scheduleGainRamp(0, 0.05);
+    }
+  }
+
+  // --- Phase 5: Personality Mode Methods ---
+
+  /**
+   * Set idle mode: silent, quiet-sliding, or ambient-drone.
+   */
+  setIdleMode(mode: IdleMode): void {
+    const prevMode = this.idleMode;
+    this.idleMode = mode;
+
+    // Transitioning FROM ambient-drone: dispose drone
+    if (prevMode === 'ambient-drone' && mode !== 'ambient-drone') {
+      if (this.droneLayer) {
+        this.droneLayer.fadeOut(0.3);
+        const drone = this.droneLayer;
+        this.droneLayer = null;
+        setTimeout(() => drone.dispose(), 400);
+      }
+    }
+
+    // Transitioning TO ambient-drone: create drone
+    if (mode === 'ambient-drone' && prevMode !== 'ambient-drone') {
+      this.droneLayer = new DroneLayer(this.ctx, this.masterGain, this.rootFreq);
+      // Drone is a subtle backdrop -- half of idle volume
+      this.droneLayer.fadeIn(this.config.idleVolume * 0.5, 0.5);
+    }
+
+    // Transitioning TO silent: mute all idle tracks, set silentMode flag
+    if (mode === 'silent') {
+      for (const track of this.tracks) {
+        track.setSilentMode(true);
+        if (track.state === 'idle') {
+          track.scheduleGainRamp(0, 0.05);
+        }
+      }
+    }
+
+    // Transitioning FROM silent: restore normal idle volume, clear flag
+    if (prevMode === 'silent' && mode !== 'silent') {
+      for (const track of this.tracks) {
+        track.setSilentMode(false);
+        if (track.state === 'idle') {
+          track.scheduleGainRamp(this.config.idleVolume, 0.05);
+        }
+      }
+    }
+  }
+
+  /**
+   * Set post-arrival mode: hold or cycle.
+   */
+  setPostArrivalMode(mode: PostArrivalMode): void {
+    this.postArrivalMode = mode;
+  }
+
+  /**
+   * Set precomputed scale frequency table for scale-snapped behavior.
+   * Pass to all tracks for staircase convergence.
+   */
+  setScaleFrequencies(freqs: number[]): void {
+    this.scaleFreqs = freqs;
+    for (const track of this.tracks) {
+      track.setScaleFreqs(freqs);
+    }
+    for (const track of this.spawnedTracks) {
+      track.setScaleFreqs(freqs);
     }
   }
 
@@ -180,6 +328,11 @@ export class SlideEngine {
     // Apply track interaction (avoid clustering)
     nextTarget = this.applyInteraction(nextTarget, trackIndex);
 
+    // Apply magnetic snap when scale-snapped and scale table available
+    if (this.config.pitchMovement === 'scale-snapped' && this.scaleFreqs.length > 0) {
+      nextTarget = magneticSnap(nextTarget, this.scaleFreqs);
+    }
+
     // Compute speed with organic variation
     const baseSpeed = this.config.movementSpeed; // semitones/sec
     const variation = this.config.movementSpeedVariation;
@@ -196,8 +349,9 @@ export class SlideEngine {
     track.idleTargetFreq = nextTarget;
     track.idleRampEndTime = now + duration;
 
-    // Set idle volume
-    track.scheduleGainRamp(this.config.idleVolume, 0.05);
+    // Set idle volume (silent mode: tracks move but produce no sound)
+    const idleGain = this.idleMode === 'silent' ? 0 : this.config.idleVolume;
+    track.scheduleGainRamp(idleGain, 0.05);
   }
 
   /**
@@ -346,6 +500,14 @@ export class SlideEngine {
     this.activeDegree = degree;
     this.activeChordFreqs = [...chordFreqs];
 
+    // Ambient drone: fade out on chord press
+    if (this.idleMode === 'ambient-drone' && this.droneLayer) {
+      this.droneLayer.fadeOut(0.3);
+    }
+
+    // Clear any active cycle timers (new chord interrupts cycling)
+    this.clearAllCycleTimers();
+
     // Model C: spawn-overflow when tracks are mid-convergence
     if (
       this.config.midConvergenceBehavior === 'spawn-overflow' &&
@@ -406,6 +568,10 @@ export class SlideEngine {
     // Compute convergence duration
     const durations = this.computeConvergenceDurations(tracks, chordFreqs, assignment);
 
+    // Determine if scale-snapped staircase convergence should be used
+    const useStaircase =
+      this.config.pitchMovement === 'scale-snapped' && this.scaleFreqs.length > 0;
+
     const now = this.ctx.currentTime;
 
     for (let i = 0; i < tracks.length; i++) {
@@ -421,7 +587,7 @@ export class SlideEngine {
         track.scheduleFrequencyRamp(targetHz, 0, this.config.convergenceEasing);
         track.state = 'converging'; // will be caught as arrived on next tick
       } else {
-        track.scheduleFrequencyRamp(targetHz, duration, this.config.convergenceEasing);
+        track.scheduleFrequencyRamp(targetHz, duration, this.config.convergenceEasing, useStaircase);
         track.state = 'converging';
       }
 
@@ -593,18 +759,61 @@ export class SlideEngine {
       }, 50);
     }
 
-    // Hold timeout
-    if (this.config.holdDuration !== Infinity) {
+    // Post-arrival mode branching
+    if (this.postArrivalMode === 'cycle') {
+      // Cycle mode: hold briefly then depart, reconverge to same chord targets
+      const holdMs = this.config.holdDuration === Infinity
+        ? 500  // Default cycle hold when holdDuration is Infinity
+        : this.config.holdDuration * 1000;
+
       track.holdTimeout = setTimeout(() => {
         if (track.state === 'held') {
           this.startDeparture(track);
+
+          // After departure completes, reconverge to same chord if still active
+          const departureMs = this.config.departureFadeTime * 1000 + 50;
+          const cycleTimer = setTimeout(() => {
+            if (this.activeChordFreqs && track.state === 'idle') {
+              // Reconverge to same chord targets using the state machine
+              const closest = this.findClosestNote(track.currentFreq, this.activeChordFreqs);
+              const cycleStaircase =
+                this.config.pitchMovement === 'scale-snapped' && this.scaleFreqs.length > 0;
+              track.initialDistance = this.semitoneDist(track.currentFreq, closest);
+              track.targetFreq = closest;
+              track.state = 'converging';
+              track.convergenceStartTime = this.ctx.currentTime;
+              track.convergenceDuration = this.config.convergenceDuration;
+              track.scheduleFrequencyRamp(
+                closest,
+                this.config.convergenceDuration,
+                this.config.convergenceEasing,
+                cycleStaircase
+              );
+              // Anticipatory swell
+              const midSwell =
+                this.config.floorVolume +
+                (this.config.heldVolume - this.config.floorVolume) * 0.3;
+              track.scheduleGainRamp(midSwell, 0.05);
+            }
+          }, departureMs);
+          this.cycleTimers.set(track, cycleTimer);
         }
-      }, this.config.holdDuration * 1000);
+      }, holdMs);
+    } else {
+      // Hold mode: stay at arrived pitch until chord is released
+      if (this.config.holdDuration !== Infinity) {
+        track.holdTimeout = setTimeout(() => {
+          if (track.state === 'held') {
+            this.startDeparture(track);
+          }
+        }, this.config.holdDuration * 1000);
+      }
+      // holdDuration === Infinity: hold indefinitely (existing behavior)
     }
 
-    // Auto-cycle: after brief hold, restart wandering
-    if (this.config.autoCycle && this.config.holdDuration === Infinity) {
-      // Auto-cycle after 500ms hold
+    // Legacy autoCycle support: if autoCycle is true but postArrivalMode is hold,
+    // respect autoCycle (backwards compatibility with existing presets)
+    if (this.config.autoCycle && this.postArrivalMode === 'hold' && this.config.holdDuration === Infinity) {
       track.holdTimeout = setTimeout(() => {
         if (track.state === 'held') {
           this.startDeparture(track);
@@ -620,6 +829,8 @@ export class SlideEngine {
       // Brief hold then re-converge to queued target
       setTimeout(() => {
         if (track.state === 'held') {
+          const queuedStaircase =
+            this.config.pitchMovement === 'scale-snapped' && this.scaleFreqs.length > 0;
           track.state = 'converging';
           const dist = this.semitoneDist(track.currentFreq, queuedTarget);
           track.initialDistance = dist;
@@ -627,7 +838,8 @@ export class SlideEngine {
           track.scheduleFrequencyRamp(
             queuedTarget,
             this.config.convergenceDuration,
-            this.config.convergenceEasing
+            this.config.convergenceEasing,
+            queuedStaircase
           );
         }
       }, 100);
@@ -641,6 +853,9 @@ export class SlideEngine {
    * All held/converging tracks begin departure.
    */
   releaseChord(): void {
+    // Clear ALL cycle timers to prevent orphaned reconvergences
+    this.clearAllCycleTimers();
+
     for (const track of this.tracks) {
       if (track.state === 'held' || track.state === 'converging') {
         if (track.holdTimeout !== null) {
@@ -660,6 +875,11 @@ export class SlideEngine {
         }
         this.startDeparture(track);
       }
+    }
+
+    // Ambient drone: fade back in on chord release
+    if (this.idleMode === 'ambient-drone' && this.droneLayer) {
+      this.droneLayer.fadeIn(this.config.idleVolume * 0.5, 0.5);
     }
 
     this.activeDegree = null;
@@ -771,9 +991,16 @@ export class SlideEngine {
     }
 
     // Create one spawned track per chord note
+    const spawnStaircase =
+      this.config.pitchMovement === 'scale-snapped' && this.scaleFreqs.length > 0;
     for (const targetHz of chordFreqs) {
       const startFreq = this.getSpawnStartFreq();
       const track = new SlideTrack(this.ctx, this.masterGain, startFreq);
+
+      // Propagate scale frequencies to spawned tracks
+      if (this.scaleFreqs.length > 0) {
+        track.setScaleFreqs(this.scaleFreqs);
+      }
 
       // Set initial volume to floor
       track.scheduleGainRamp(this.config.floorVolume, 0.15); // 150ms fade-in to avoid pop
@@ -787,7 +1014,8 @@ export class SlideEngine {
       track.scheduleFrequencyRamp(
         targetHz,
         this.config.convergenceDuration,
-        this.config.convergenceEasing
+        this.config.convergenceEasing,
+        spawnStaircase
       );
 
       // Anticipatory swell
@@ -831,6 +1059,13 @@ export class SlideEngine {
       for (let i = current; i < n; i++) {
         const track = new SlideTrack(this.ctx, this.masterGain, this.rootFreq);
         track.scheduleGainRamp(this.config.idleVolume, 0.15); // 150ms fade-in to avoid pop
+        // Propagate scale frequencies and silent mode to new tracks
+        if (this.scaleFreqs.length > 0) {
+          track.setScaleFreqs(this.scaleFreqs);
+        }
+        if (this.idleMode === 'silent') {
+          track.setSilentMode(true);
+        }
         this.tracks.push(track);
       }
     } else if (n < current) {
@@ -915,6 +1150,7 @@ export class SlideEngine {
       currentFreq: track.currentFreq,
       targetFreq: track.targetFreq,
       proximity,
+      silentMode: this.idleMode === 'silent',
     };
   }
 
@@ -925,6 +1161,11 @@ export class SlideEngine {
    */
   setRootFreq(freq: number): void {
     this.rootFreq = freq;
+
+    // Update drone frequencies on key change
+    if (this.droneLayer) {
+      this.droneLayer.setRootFreq(freq);
+    }
 
     // If modeToggleBehavior is 'reset-home', reset idle tracks to root
     if (
@@ -959,6 +1200,15 @@ export class SlideEngine {
     }
     this.isRunning = false;
 
+    // Clear cycle timers
+    this.clearAllCycleTimers();
+
+    // Dispose drone layer
+    if (this.droneLayer) {
+      this.droneLayer.dispose();
+      this.droneLayer = null;
+    }
+
     for (const track of this.tracks) {
       if (track.holdTimeout !== null) {
         clearTimeout(track.holdTimeout);
@@ -976,6 +1226,19 @@ export class SlideEngine {
     this.spawnedTracks = [];
     this.activeDegree = null;
     this.activeChordFreqs = null;
+  }
+
+  // --- Cycle Timer Management ---
+
+  /**
+   * Clear all per-track cycle reconvergence timers.
+   * Called on chord release and new chord press to prevent orphaned reconvergences.
+   */
+  private clearAllCycleTimers(): void {
+    for (const timer of this.cycleTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.cycleTimers.clear();
   }
 
   // --- Utility ---
