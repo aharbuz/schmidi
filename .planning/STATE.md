@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 3 complete — all gap closure plans executed
+**Current focus:** Phase 4 — Visualization (waveform trace view complete)
 
 ## Current Position
 
-Phase: 3 of 5 (Convergence Engine + Slide Mode)
-Plan: 6 of 6 in current phase (03-06 complete -- phase done)
-Status: Phase Complete
-Last activity: 2026-02-19 — Completed 03-06 (Scrollable Controls + CSS Tooltips)
+Phase: 4 of 5 (Visualization)
+Plan: 2 of 3 in current phase (04-02 complete)
+Status: In Progress
+Last activity: 2026-02-20 — Completed 04-02 (Waveform Trace View)
 
 Progress: [██████████████████████████████] 66%
 
@@ -50,6 +50,7 @@ Progress: [███████████████████████
 | Phase 03 P04 | 17min | 2 tasks | 0 files |
 | Phase 03 P05 | 2min | 2 tasks | 3 files |
 | Phase 03 P06 | 3min | 2 tasks | 3 files |
+| Phase 04 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,9 @@ Recent decisions affecting current work:
 - 03-05: pauseScheduler called after construction as belt-and-suspenders silence guarantee
 - 03-06: CSS data-tooltip with ::after pseudo-element instead of custom React tooltip component -- zero JS overhead
 - 03-06: scrollbar-thin opt-in class preserves global scrollbar hiding while allowing specific containers to scroll
+- [Phase 04]: AnalyserNode between osc and swellGain for clean per-track waveform before gain processing
+- [Phase 04]: WaveformBuffer pre-allocates all typed arrays to avoid GC pressure in rAF render loop
+- [Phase 04]: Convergence flash uses delta-time phase animation (300ms flash + 200ms fade) synced to rAF
 
 ### Pending Todos
 
@@ -123,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Stopped at: Completed 03-06-PLAN.md (Scrollable Controls + CSS Tooltips) -- Phase 3 fully complete
-Resume file: .planning/phases/03-convergence-engine-slide-mode/03-06-SUMMARY.md
+Last session: 2026-02-20
+Stopped at: Completed 04-02-PLAN.md (Waveform Trace View)
+Resume file: .planning/phases/04-visualization/04-02-SUMMARY.md
