@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Chord Engine + Synth Mode** - Playable chord instrument with key/mode selection and ADSR
 - [x] **Phase 3: Convergence Engine + Slide Mode** - Core Schmidi mechanic: N tracks gliding to chord targets simultaneously
 - [x] **Phase 4: Visualization** - Radial and waveform views as primary instrument UI
-- [ ] **Phase 5: Instrument Personality** - Slide character, convergence behavior, pre-press modes, scale snapping
+- [x] **Phase 5: Instrument Personality** - Slide character, convergence behavior, pre-press modes, scale snapping
 
 ## Phase Details
 
@@ -96,9 +96,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User selects pre-press mode (silent until pressed, always sliding quietly, or ambient drone) and the idle behavior changes as described
   4. User toggles scale-snapped glissando and hears the pitch movement change from continuous glide to diatonic step motion through the selected scale
 **Plans**: 3 plans
-- [ ] 05-01-PLAN.md -- Preset system + scale frequency utilities + store extension
-- [ ] 05-02-PLAN.md -- Engine behaviors: cycle mode, idle modes, drone layer, scale-snapped convergence
-- [ ] 05-03-PLAN.md -- Preset overlay UI + advanced controls + silent mode dimming + verification
+- [x] 05-01-PLAN.md -- Preset system + scale frequency utilities + store extension
+- [x] 05-02-PLAN.md -- Engine behaviors: cycle mode, idle modes, drone layer, scale-snapped convergence
+- [x] 05-03-PLAN.md -- Preset overlay UI + advanced controls + silent mode dimming + verification
 
 ## Progress
 
@@ -111,4 +111,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Chord Engine + Synth Mode | 5/5 | Complete | 2026-02-18 |
 | 3. Convergence Engine + Slide Mode | 4/6 | Gap Closure | - |
 | 4. Visualization | 3/3 | Complete | 2026-02-20 |
-| 5. Instrument Personality | 0/3 | Not started | - |
+| 5. Instrument Personality | 3/3 | Complete | 2026-02-20 |
