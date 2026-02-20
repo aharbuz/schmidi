@@ -77,3 +77,30 @@ html, body, #root {
 [data-tooltip]:hover::after {
   opacity: 1;
 }
+
+/* --- Dark/glow aesthetic utilities (Phase 4) --- */
+
+/* Subtle cyan glow border for panels/cards */
+.glow-border {
+  border-color: rgba(6, 182, 212, 0.15);
+}
+
+/* Glow text shadow for active labels */
+.glow-text {
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+}
+
+/* Fade-in animation for mode transitions */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fade-in 0.2s ease;
+}
+
+/* Slide mode glow on ModeToggle */
+.slide-active-glow {
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.4), 0 0 4px rgba(99, 102, 241, 0.2);
+}

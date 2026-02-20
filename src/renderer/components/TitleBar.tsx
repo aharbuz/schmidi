@@ -16,7 +16,7 @@ export function TitleBar() {
   return (
     <div
       className="flex items-center justify-center shrink-0
-        bg-[#0d0d14] border-b border-white/5 select-none"
+        bg-[#0a0a0f] border-b border-white/[0.03] select-none"
       style={{
         height: '38px',
         WebkitAppRegion: 'drag',

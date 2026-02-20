@@ -36,7 +36,7 @@ export function StatusBar() {
     <div
       data-testid="status-bar"
       className="h-7 flex items-center justify-between px-4
-        bg-[#111116] border-t border-gray-800/40
+        bg-[#0a0a0f] border-t border-white/[0.03]
         text-[11px] font-mono text-gray-500 select-none no-select"
     >
       {/* Left: context state */}

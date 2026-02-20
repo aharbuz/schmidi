@@ -38,8 +38,8 @@ async function loadURLWithRetry(win: BrowserWindow, url: string, maxRetries = 10
 const createWindow = () => {
   // Persist window position and size between launches
   const mainWindowState = windowStateKeeper({
-    defaultWidth: 1000,
-    defaultHeight: 700,
+    defaultWidth: 1280,
+    defaultHeight: 720,
   });
 
   mainWindow = new BrowserWindow({
@@ -48,7 +48,7 @@ const createWindow = () => {
     width: mainWindowState.width,
     height: mainWindowState.height,
     minWidth: 800,
-    minHeight: 500,
+    minHeight: 450,
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 12, y: 12 },
     webPreferences: {

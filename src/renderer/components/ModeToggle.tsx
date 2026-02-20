@@ -13,7 +13,9 @@ export function ModeToggle() {
 
   return (
     <div className="flex items-center justify-center">
-      <div className="flex rounded-full bg-gray-900 border border-gray-700/50 p-0.5">
+      <div className={`flex rounded-full bg-gray-900 border border-gray-700/50 p-0.5 transition-shadow ${
+        slideMode ? 'slide-active-glow' : ''
+      }`}>
         <button
           type="button"
           onClick={() => slideMode && toggleSlideMode()}
