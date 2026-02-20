@@ -1,4 +1,5 @@
 import type { WaveformType } from '../../shared/types';
+import { buildStaircaseCurve } from '../music/scaleFrequencies';
 
 // --- Configuration types for SlideEngine ---
 
@@ -132,6 +133,7 @@ export interface SlideTrackState {
   currentFreq: number;
   targetFreq: number | null;
   proximity: number;
+  silentMode: boolean;
 }
 
 // --- SlideTrack class ---
@@ -179,6 +181,12 @@ export class SlideTrack {
   // Queued convergence target (for finish-then-retarget)
   queuedTargetFreq: number | null = null;
 
+  // Phase 5: Scale-snapped convergence
+  private scaleFreqs: number[] = [];
+
+  // Phase 5: Silent mode flag (set by engine, read by getState for visualization)
+  silentMode = false;
+
   constructor(
     ctx: AudioContext,
     masterGain: GainNode,
@@ -219,12 +227,17 @@ export class SlideTrack {
 
   /**
    * Schedule a frequency ramp with anti-click pattern.
-   * Supports linear, ease-in, and ease-out easing via setValueCurveAtTime.
+   * Supports linear, ease-in, ease-out, and ease-in-out easing via setValueCurveAtTime.
+   * When scale-snapped and scaleFreqs available, uses staircase curve instead of smooth ramps.
+   *
+   * @param useStaircase - When true (and scaleFreqs available), uses stepped scale-degree
+   *   convergence instead of smooth easing. Set by engine for converging state only.
    */
   scheduleFrequencyRamp(
     targetHz: number,
     durationSeconds: number,
-    easing: EasingType
+    easing: EasingType,
+    useStaircase: boolean = false
   ): void {
     const clampedTarget = Math.max(1, targetHz); // exponentialRamp cannot pass through 0
     const now = this.ctx.currentTime;
@@ -246,10 +259,19 @@ export class SlideTrack {
       return;
     }
 
-    if (easing === 'linear') {
+    // Scale-snapped staircase convergence: stepped through scale degrees
+    if (useStaircase && this.scaleFreqs.length > 0) {
+      const staircaseCurve = buildStaircaseCurve(
+        freq.value,
+        clampedTarget,
+        this.scaleFreqs,
+        512
+      );
+      freq.setValueCurveAtTime(staircaseCurve, now, durationSeconds);
+    } else if (easing === 'linear') {
       freq.linearRampToValueAtTime(clampedTarget, now + durationSeconds);
     } else {
-      // Use setValueCurveAtTime for ease-in and ease-out curves
+      // Use setValueCurveAtTime for ease-in, ease-out, and ease-in-out curves
       const curveLength = 256;
       const curve = new Float32Array(curveLength);
       const startFreq = freq.value;
@@ -261,9 +283,16 @@ export class SlideTrack {
         if (easing === 'ease-in') {
           // Quadratic ease-in: starts slow, ends fast
           easedT = t * t;
-        } else {
+        } else if (easing === 'ease-out') {
           // Quadratic ease-out: starts fast, ends slow
           easedT = 1 - (1 - t) * (1 - t);
+        } else {
+          // ease-in-out: quadratic ease-in for first half, ease-out for second half
+          if (t < 0.5) {
+            easedT = 2 * t * t;
+          } else {
+            easedT = 1 - 2 * (1 - t) * (1 - t);
+          }
         }
 
         curve[i] = startFreq + (clampedTarget - startFreq) * easedT;
@@ -309,6 +338,20 @@ export class SlideTrack {
    */
   setWaveform(type: WaveformType): void {
     this.osc.type = type;
+  }
+
+  /**
+   * Set precomputed scale frequency table for staircase convergence.
+   */
+  setScaleFreqs(freqs: number[]): void {
+    this.scaleFreqs = freqs;
+  }
+
+  /**
+   * Set silent mode flag (engine sets this, visualization reads via getState).
+   */
+  setSilentMode(silent: boolean): void {
+    this.silentMode = silent;
   }
 
   /**
