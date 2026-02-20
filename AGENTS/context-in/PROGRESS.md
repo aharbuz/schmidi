@@ -1,5 +1,44 @@
 # Schmidi Progress
 
+## 2026-02-20: Phase 5 Execution — Awaiting Human Verification
+
+### What was done
+Executed `/gsd:execute-phase 5` — all 3 plans across 3 waves, code complete and committed.
+
+- **Wave 1 (05-01)**: Preset system + scale frequency utilities + store extensions
+  - `presets.ts`: 4 preset functions (Eerie, Bloom, Swarm, Custom) with intensity interpolation
+  - `scaleFrequencies.ts`: scale table builder, magnetic snap quantizer, staircase curve generator
+  - `synthStore.ts`: 6 new state fields + 5 new actions (applyPreset, setPresetIntensity, setIdleMode, setPostArrivalMode, setSnapScale)
+  - Deviation: extended EasingType + IdleMovementMode unions in SlideTrack.ts for preset compatibility
+- **Wave 2 (05-02)**: Engine behaviors wired into SlideEngine + SlideTrack
+  - DroneLayer class (3 detuned oscillators for ambient drone idle mode)
+  - Cycle mode branching in arrival handler with per-track timers
+  - Silent mode (gain 0 + silentMode flag for visualization)
+  - Magnetic snap on idle targets + staircase curve convergence
+- **Wave 3 (05-03)**: UI layer — Task 1 complete, Task 2 (human verify) pending
+  - Preset overlay (Eerie/Bloom/Swarm/Custom buttons + intensity slider) on visualization canvas
+  - Advanced personality controls in SlideControls panel
+  - Silent mode dimming in RadialView (60% radius, 30% halo) and WaveformView (30% trace opacity)
+
+### Commits (7 total)
+- `813a11e` feat(05-01): create preset definitions and scale frequency utilities
+- `390dc95` feat(05-01): extend synthStore with preset and personality state
+- `35d3c83` docs(05-01): complete preset system + scale utilities plan
+- `53168ca` feat(05-02): implement cycle mode, idle mode branching, and drone layer in SlideEngine
+- `eb08764` feat(05-02): implement scale-snapped convergence and ease-in-out easing in SlideTrack
+- `c3540ba` docs(05-02): complete engine behaviors integration plan
+- `b137c15` feat(05-03): add personality UI -- preset overlay, advanced controls, silent mode dimming
+
+### Current state
+- All Phase 5 code committed and building
+- **Checkpoint pending**: Human verification of SLIDE-06/07/08/09 (19 test steps)
+- Plan 05-03 Task 2 is a human-verify gate — session ended before user responded
+
+### What's next
+1. User runs `npm start` and verifies the 19 checkpoint steps (see continuation prompt)
+2. After "approved": spawn continuation agent to create 05-03 SUMMARY, then verifier + roadmap update
+3. After phase 5 complete: `/gsd:progress` to see next steps
+
 ## 2026-02-20: Phase 4 Context Gathered
 
 ### What was done
