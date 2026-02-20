@@ -2,9 +2,9 @@ import type { WaveformType } from '../../shared/types';
 
 // --- Configuration types for SlideEngine ---
 
-export type EasingType = 'linear' | 'ease-in' | 'ease-out';
+export type EasingType = 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
 export type TrackModel = 'heat-seeker' | 'spawn-overflow';
-export type IdleMovementMode = 'stationary' | 'slow-drift' | 'always-moving';
+export type IdleMovementMode = 'stationary' | 'slow-drift' | 'always-moving' | 'random-walk';
 export type IdleRangeType = 'free-roam' | 'orbit-home' | 'stay-in-scale';
 export type StartingPosition = 'root-note' | 'random' | 'last-known';
 export type TrackCorrelation = 'independent' | 'loosely-correlated' | 'unison';
