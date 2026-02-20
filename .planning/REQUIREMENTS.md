@@ -27,10 +27,10 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **SLIDE-03**: Track volume swells as pitch approaches chord target note and fades as it moves away (proximity-based amplitude)
 - [x] **SLIDE-04**: User can configure number of sliding tracks (default 2)
 - [x] **SLIDE-05**: One "solid" anchor track plays chord cleanly without slide behavior alongside sliding tracks
-- [ ] **SLIDE-06**: User can configure slide character: eerie convergence (independent wandering) vs smooth bloom (lush sweeping)
-- [ ] **SLIDE-07**: User can configure convergence behavior: converge-then-restart, converge-and-hold, or continuous cycle
-- [ ] **SLIDE-08**: User can configure pre-press behavior: silent until pressed, always sliding quietly, or ambient drone
-- [ ] **SLIDE-09**: User can toggle scale-snapped glissando (slides step through diatonic scale degrees instead of continuous pitch)
+- [x] **SLIDE-06**: User can configure slide character: eerie convergence (independent wandering) vs smooth bloom (lush sweeping)
+- [x] **SLIDE-07**: User can configure convergence behavior: converge-then-restart, converge-and-hold, or continuous cycle
+- [x] **SLIDE-08**: User can configure pre-press behavior: silent until pressed, always sliding quietly, or ambient drone
+- [x] **SLIDE-09**: User can toggle scale-snapped glissando (slides step through diatonic scale degrees instead of continuous pitch)
 
 ### Visualization
 
@@ -99,10 +99,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIZ-02 | Phase 4 | Complete |
 | VIZ-03 | Phase 4 | Complete |
 | VIZ-04 | Phase 4 | Complete |
-| SLIDE-06 | Phase 5 | Pending |
-| SLIDE-07 | Phase 5 | Pending |
-| SLIDE-08 | Phase 5 | Pending |
-| SLIDE-09 | Phase 5 | Pending |
+| SLIDE-06 | Phase 5 | Complete |
+| SLIDE-07 | Phase 5 | Complete |
+| SLIDE-08 | Phase 5 | Complete |
+| SLIDE-09 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 22 total

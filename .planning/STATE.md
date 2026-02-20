@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The slide mode — the feeling of chords emerging from converging glissandos rather than being struck, with the behavior visible and configurable in real-time
-**Current focus:** Phase 4 complete. Ready for Phase 5 — Instrument Personality
+**Current focus:** Phase 5 — Instrument Personality (in progress)
 
 ## Current Position
 
-Phase: 4 of 5 (Visualization) -- COMPLETE
-Plan: 3 of 3 in current phase (all plans complete)
-Status: Phase Complete
-Last activity: 2026-02-20 — Completed 04-03 (Layout Integration + Visual Verification)
+Phase: 5 of 5 (Instrument Personality)
+Plan: 1 of 3 in current phase (05-01 complete)
+Status: In Progress
+Last activity: 2026-02-20 — Completed 05-01 (Preset System + Scale Utilities)
 
-Progress: [█████████████████████████████████████] 80%
+Progress: [██████████████████████████████████████] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 5min
-- Total execution time: 95min
+- Total plans completed: 19
+- Average duration: 6min
+- Total execution time: 109min
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [███████████████████████
 | 2. Chord Engine + Synth Mode | 5 | 24min | 5min |
 | 3. Convergence Engine + Slide Mode | 6 | 36min | 6min |
 | 4. Visualization | 3 | 10min | 3min |
+| 5. Instrument Personality | 1 | 14min | 14min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 3min, 2min, 3min, 2min
-- Trend: Phase 4 visualization plans consistently fast (2-5min each)
+- Last 5 plans: 2min, 3min, 2min, 3min, 14min
+- Trend: Phase 5 data-layer plan longer due to preset/store complexity
 
 *Updated after each plan completion*
 
@@ -54,6 +55,7 @@ Progress: [███████████████████████
 | Phase 04 P01 | 5min | 2 tasks | 4 files |
 | Phase 04 P02 | 3min | 2 tasks | 4 files |
 | Phase 04 P03 | 2min | 3 tasks | 8 files |
+| Phase 05 P01 | 14min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -127,6 +129,10 @@ Recent decisions affecting current work:
 - 04-03: Full-viz mode hides all chrome; Escape exits, expand icon enters (avoids chord key conflicts A-J)
 - 04-03: Dark/glow restyle via CSS utility classes (glow-border, glow-text, fade-in) not component-level inline styles
 - 04-03: Window defaults 1280x720 (16:9); windowStateKeeper preserves user size after first launch
+- 05-01: Extended EasingType with 'ease-in-out' and IdleMovementMode with 'random-walk' for preset compatibility
+- 05-01: Bloom preset uses inward-focus cinematic character (loosely-correlated, ease-in-out convergence)
+- 05-01: Custom preset auto-activation in updateSlideConfig via divergence detection against current preset values
+- 05-01: PostArrivalMode 'hold' maps to autoCycle:false/holdDuration:Infinity; 'cycle' maps to autoCycle:true with configurable holdDuration
 
 ### Pending Todos
 
@@ -140,5 +146,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 04-03-PLAN.md (Layout Integration) -- Phase 4 Visualization complete
-Resume file: .planning/phases/04-visualization/04-03-SUMMARY.md
+Stopped at: Completed 05-01-PLAN.md (Preset System + Scale Utilities)
+Resume file: .planning/phases/05-instrument-personality/05-01-SUMMARY.md
