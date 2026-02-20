@@ -1,29 +1,23 @@
 # Schmidi Progress
 
-## 2026-02-20: Phase 5 — Wiring Bug Fix + Tests
+## 2026-02-20: Phase 5 — Wiring Bug Fix + Tests + Dropdown UX Fix
 
 ### What was done
-User tested Phase 5 and found SLIDE-07/08/09 not working. Root cause: store actions set Zustand state but never called engine methods.
-
-**Fixes applied to `synthStore.ts`:**
-- `setIdleMode()`: added `slideEngineRef?.setIdleMode(mode)`
-- `setPostArrivalMode()`: added `slideEngineRef?.setPostArrivalMode(mode)`
-- `setSnapScale()`: compute scale freq table + `slideEngineRef?.setScaleFrequencies(freqs)`
-- `updateSlideConfig()`: build/clear scale freqs when pitchMovement changes
-
-**Tests written:**
-- `presets.test.ts` — 17 tests (preset configs, intensity interpolation, defaults)
-- `scaleFrequencies.test.ts` — 26 tests (scale table, binary search, magnetic snap, staircase curves)
-- All 130 tests pass, typecheck clean
+1. User tested Phase 5 — SLIDE-06 passed, SLIDE-07/08/09 broken
+2. Root cause: store actions set Zustand state but never called engine methods
+3. Fixed 3 missing engine calls + scale freq build on pitchMovement toggle
+4. Wrote 43 tests (17 presets + 26 scale frequencies) — all 130 pass
+5. User re-tested: SLIDE-06 ✓, SLIDE-07 ✓, SLIDE-08 ✓, SLIDE-09 ✓ (scale snap works)
+6. Fixed dropdown focus hijacking — all `<select>` elements now blur after selection
 
 ### Current state
-- Wiring fixes committed, awaiting user re-test of SLIDE-07/08/09
-- Phase 5 checkpoint still pending (05-03 Task 2)
+- All fixes committed and pushed (commits `861adfb` and `0b93c6f`)
+- Phase 5 checkpoint effectively passing — user confirmed all 4 success criteria
+- Still need to: create 05-03 SUMMARY, run verifier, mark phase complete
 
 ### What's next
-1. User re-tests `npm start` — especially idle modes, cycle visualization, scale snap
-2. If approved: create 05-03 SUMMARY, run verifier, complete phase
-3. If issues remain: debug further
+1. Complete the execute-phase workflow: 05-03 SUMMARY → verifier → roadmap update
+2. Then `/gsd:progress` to see next steps
 
 ## 2026-02-20: Phase 5 Execution — Awaiting Human Verification
 
